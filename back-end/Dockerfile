@@ -9,10 +9,6 @@ RUN docker-php-ext-configure intl \
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Config PHP perso
-COPY php.ini /usr/local/etc/php/conf.d/zz-app.ini
-
 WORKDIR /var/www/html
 USER www-data
 
