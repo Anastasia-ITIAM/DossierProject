@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoRide</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- CSS perso -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- Script perso -->
+    <script type="module" src="/js/main.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+</head>
+
+<body>
+<!-- Header inclus via JS -->
+<div id="header-placeholder"></div>
+
+<h1>Espace Administrateur</h1>
+
+<h2>Créer un compte employé</h2>
+<form style="margin-bottom: 20px;">
+    <input type="text" placeholder="Pseudo" required>
+    <input type="email" placeholder="Email" required>
+    <input type="password" placeholder="Mot de passe" required>
+    <button type="submit">Créer</button>
+</form>
+<p>Employé créé avec succès.</p>
+
+<h2>Utilisateurs et Employés</h2>
+<table>
+    <thead>
+        <tr><th>Pseudo</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Jean</td>
+            <td>jean@example.com</td>
+            <td>utilisateur</td>
+            <td>actif</td>
+            <td><a href="#" class="btn-suspend">Suspendre</a></td>
+        </tr>
+        <tr>
+            <td>Claire</td>
+            <td>claire@example.com</td>
+            <td>employe</td>
+            <td>suspendu</td>
+            <td><a href="#" class="btn-activate">Réactiver</a></td>
+        </tr>
+        <tr>
+            <td>Marc</td>
+            <td>marc@example.com</td>
+            <td>employe</td>
+            <td>actif</td>
+            <td><a href="#" class="btn-suspend">Suspendre</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Statistiques</h2>
+<p>Total crédits gagnés par la plateforme : <strong>1234.50 crédits</strong></p>
+
+<canvas id="chartCovoiturages" width="600" height="300"></canvas>
+<canvas id="chartCredits" width="600" height="300" style="margin-top: 40px;"></canvas>
+
+<script>
+// Données codées en dur
+const labelsCovoiturages = ["2025-08-01","2025-08-02","2025-08-03","2025-08-04"];
+const dataCovoiturages = [5, 8, 6, 10];
+
+const labelsCredits = ["2025-08-01","2025-08-02","2025-08-03","2025-08-04"];
+const dataCredits = [50, 80, 60, 100];
+
+// Graphique 1: Nombre de covoiturages par jour
+const ctx1 = document.getElementById('chartCovoiturages').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: labelsCovoiturages,
+        datasets: [{
+            label: 'Nombre de covoiturages',
+            data: dataCovoiturages,
+            borderColor: 'blue',
+            backgroundColor: 'lightblue',
+            fill: false,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Graphique 2: Gains en crédits par jour
+const ctx2 = document.getElementById('chartCredits').getContext('2d');
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: labelsCredits,
+        datasets: [{
+            label: 'Crédits gagnés par jour',
+            data: dataCredits,
+            backgroundColor: 'green'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+
+    <!-- Footer via JS -->
+        <div id="footer-placeholder"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+        </body>
+    </html>

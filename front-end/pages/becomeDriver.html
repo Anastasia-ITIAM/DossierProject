@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoRide</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- CSS perso -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- Script perso -->
+    <script type="module" src="/js/main.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+</head>
+
+<body>
+<!-- Header inclus via JS -->
+<div id="header-placeholder"></div>
+
+
+<div class="container my-5" style="max-width:600px;">
+    <h2 class="text-center mb-4">Devenir Chauffeur 🐊</h2>
+
+        <form>
+        <div class="mb-3">
+            <label for="plaque" class="form-label">Plaque d'immatriculation *</label>
+            <input type="text" id="plaque" name="plaque" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="date_immatriculation" class="form-label">Date de première immatriculation *</label>
+            <input type="date" id="date_immatriculation" name="date_immatriculation" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="marque" class="form-label">Marque *</label>
+            <input type="text" id="marque" name="marque" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="modele" class="form-label">Modèle *</label>
+            <input type="text" id="modele" name="modele" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="couleur" class="form-label">Couleur</label>
+            <input type="text" id="couleur" name="couleur" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="energie" class="form-label">Motorisation</label>
+            <input type="text" id="energie" name="energie" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="places_disponibles" class="form-label">Nombre de places disponibles *</label>
+            <input type="number" id="places_disponibles" name="places_disponibles" class="form-control" min="1" required>
+        </div>
+
+        <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="fumeur" name="fumeur">
+            <label class="form-check-label ms-2" for="fumeur">Accepte les fumeurs</label>
+        </div>
+
+        <div class="form-check mb-4">
+            <input type="checkbox" class="form-check-input" id="animaux_acceptes" name="animaux_acceptes">
+            <label class="form-check-label ms-2" for="animaux_acceptes">Accepte les animaux</label>
+        </div>
+
+        <div class="mb-3">
+            <label for="preferences_personnalisees" class="form-label">Préférences personnalisées</label>
+            <textarea id="preferences_personnalisees" name="preferences_personnalisees" class="form-control" rows="3"></textarea>
+        </div>
+
+        <p class="text-center mt-5">
+        <a href="profil.html" class="btn custom-btn">Devenir chauffeur</a>
+        </p>
+        </form>
+
+</div>
+    
+
+
+
+    <!-- Footer via JS -->
+            <div id="footer-placeholder"></div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+            </body>
+        </html>

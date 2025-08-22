@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoRide</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- CSS perso -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- Script perso -->
+    <script type="module" src="/js/main.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+</head>
+
+<body>
+<!-- Header inclus via JS -->
+<div id="header-placeholder"></div>
+
+<div class="container my-4" style="max-width:900px;">
+        <h2 class="text-center mb-4">Mes véhicules 🧩</h2>
+
+        <!-- Liste des véhicules existants -->
+        <h4 class="text-center mb-3">Modifier mes véhicules</h4>
+
+        <div class="card p-3 mb-2 shadow-sm eco-box">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Plaque</label>
+                    <input class="form-control" value="ABC-123" readonly>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Date immatriculation *</label>
+                    <input type="date" class="form-control" value="2022-01-15">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Marque *</label>
+                    <input type="text" class="form-control" value="Toyota">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Modèle *</label>
+                    <input type="text" class="form-control" value="Corolla">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Couleur</label>
+                    <input type="text" class="form-control" value="Bleu">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Énergie</label>
+                    <input type="text" class="form-control" value="Essence">
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Places disponibles *</label>
+                    <input type="number" class="form-control" value="4" min="1">
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="btn custom-btn">Enregistrer</button>
+            </div>
+        </div>
+
+        <!-- Suppression véhicule -->
+        <div class="text-center mb-4">
+            <button class="btn btn-danger">Supprimer</button>
+        </div>
+
+        <hr>
+
+        <!-- Formulaire ajout véhicule -->
+        <h4 class="text-center">Ajouter un nouveau véhicule</h4>
+        <div class="card p-3 shadow-sm eco-box mb-4">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Plaque *</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Date immatriculation *</label>
+                    <input type="date" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Marque *</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Modèle *</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label>Couleur</label>
+                    <input type="text" class="form-control">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label>Énergie</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label>Places disponibles *</label>
+                    <input type="number" class="form-control" min="1">
+                </div>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="fumeur">
+                <label for="fumeur" class="form-check-label ms-2">Accepte les fumeurs</label>
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="animaux">
+                <label for="animaux" class="form-check-label ms-2">Accepte les animaux</label>
+            </div>
+
+            <label>Préférences personnalisées</label>
+            <textarea class="form-control mb-3" rows="3"></textarea>
+
+            <div class="text-center">
+                <button class="btn custom-btn">Ajouter le véhicule</button>
+            </div>
+        </div>
+    </div>
+
+
+<!-- Footer via JS -->
+        <div id="footer-placeholder"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+        </body>
+    </html>
