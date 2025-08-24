@@ -18,8 +18,8 @@ export function initSignUp() {
         return regex.test(password);
     }
 
-    // Initialisation du formulaire 
-    const form = document.querySelector('form');
+    // Récupérer le formulaire par ID
+    const form = document.getElementById('signUpForm');
     if (!form) return;
 
     form.addEventListener('submit', (e) => {
@@ -57,7 +57,30 @@ export function initSignUp() {
             return;
         }
 
-        // Envoi du formulaire
-        form.submit();
+        // Envoi du formulaire via fetch POST vers Symfony
+        fetch('http://localhost:8081/api/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                pseudo: pseudo,
+                motdepasse: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Inscription réussie !');
+                window.location.href = '/signIn.html'; // redirection vers login
+            } else {
+                alert('Erreur : ' + data.error);
+            }
+        })
+        .catch(err => {
+            console.error('Erreur JS fetch :', err);
+            alert('Erreur serveur');
+        });
     });
 }
