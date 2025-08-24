@@ -1,41 +1,53 @@
 export function initSignIn() {
-    
+
     // Validation Pseudo (3-20 caractères, lettres, chiffres, underscore)
     function validatePseudo(pseudo) {
         const regex = /^[a-zA-Z0-9_]{3,20}$/;
         return regex.test(pseudo);
     }
 
-     // Validation Mot de passe (minimum 8 caractères, au moins 1 maj, 1 min, 1 chiffre, 1 spécial)
-    function validatePassword(password) {
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        return regex.test(password);
-    }
-
-
-     // Initialisation du formulaire 
-    const form = document.querySelector('form');
+    // Récupérer le formulaire par ID
+    const form = document.getElementById('signInForm');
     if (!form) return;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {  
         e.preventDefault();
 
         const pseudo = form.pseudo.value.trim();
         const password = form.motdepasse.value;
 
-        // Alerts
-        if (!validatePseudo(pseudo)) {
-            alert("Pseudo invalide (3-20 caractères)");
-            return;
-        }
+        // Alerts de validation
+        if (!validatePseudo(pseudo)) return alert('Pseudo invalide (3-20 caractères)');
+        if (password.length < 8) return alert('Mot de passe invalide (au moins 8 caractères)');
 
-        if (!validatePassword(password)) {
-            alert("Mot de passe invalide. Il doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.");
-            return;
-        }
+       
+        // Envoi du formulaire via fetch POST
+       
+        // Préparer le JSON pour le back-end
+        const data = {
+            pseudo: pseudo,
+            password: password
+        };
 
-           // Envoi du formulaire
-        form.submit();
+        try {
+            const response = await fetch('http://localhost:8081/api/login', {  
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert('Connexion réussie !');
+                window.location.href = '/pages/profil.html';
+            } else {
+                alert(result.message || 'Identifiants invalides');
+            }
+
+        } catch (err) {
+            console.error('Erreur fetch :', err);
+            alert('Erreur réseau');
+        }
     });
-
 }

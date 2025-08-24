@@ -19,7 +19,7 @@ class UserController extends AbstractController
         $this->em = $em;
     }
 
-    // ------------------- CREATION -------------------
+    // ------------------- INSCRIPTION (signUp.html/js) -------------------
 #[Route('', name: 'create_user', methods: ['POST'])]
 public function create(Request $request): JsonResponse
 {
@@ -138,7 +138,7 @@ public function create(Request $request): JsonResponse
         return new JsonResponse(['success' => true, 'message' => 'Utilisateur mis à jour']);
     }
 
-    // ------------------- DELETE -------------------
+    // ------------------- SUPPRIMER -------------------
     #[Route('/{id}', name: 'delete_user', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
