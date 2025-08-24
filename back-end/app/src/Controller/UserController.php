@@ -4,81 +4,152 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+#[Route('/api/user')]
 class UserController extends AbstractController
 {
-    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
-    public function register(
-        Request $request,
-        EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher,
-        ValidatorInterface $validator
-    ): JsonResponse
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
     {
-        $data = json_decode($request->getContent(), true);
+        $this->em = $em;
+    }
 
-        // Vérification des champs requis
-        if (empty($data['email']) || empty($data['username']) || empty($data['password']) || empty($data['password_confirmation'])) {
-            return $this->json(['error' => 'Missing required fields'], 400);
+    // ------------------- CREATION -------------------
+#[Route('', name: 'create_user', methods: ['POST'])]
+public function create(Request $request): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+
+    $email = $data['email'] ?? null;
+    $pseudo = $data['pseudo'] ?? null;
+    $password = $data['password'] ?? null;
+
+    if (!$email || !$pseudo || !$password) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Email, pseudo et mot de passe sont requis'
+        ], 400);
+    }
+
+    // Vérifier si l'email existe déjà
+    $existingEmail = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);
+    if ($existingEmail) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Cet email est déjà utilisé'
+        ], 409);
+    }
+
+    // Vérifier si le pseudo existe déjà
+    $existingPseudo = $this->em->getRepository(User::class)->findOneBy(['pseudo' => $pseudo]);
+    if ($existingPseudo) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Ce pseudo est déjà utilisé'
+        ], 409);
+    }
+
+    // Création de l'utilisateur
+    $user = new User();
+    $user->setEmail($email);
+    $user->setPseudo($pseudo);
+    $user->setPassword(password_hash($password, PASSWORD_BCRYPT));
+    $user->setCreadits($data['creadits'] ?? 20);
+    $user->setRole($data['role'] ?? 'ROLE_PASSENGER');
+    $user->setCreatedAt(new \DateTime());
+    $user->setStatus($data['status'] ?? 'active');
+
+    $this->em->persist($user);
+    $this->em->flush();
+
+    return new JsonResponse([
+        'success' => true,
+        'message' => 'Utilisateur créé',
+        'user_id' => $user->getId()
+    ], 201);
+}
+
+
+    // ------------------- AFFICHER TOUS -------------------
+    #[Route('', name: 'get_users', methods: ['GET'])]
+    public function list(): JsonResponse
+    {
+        $users = $this->em->getRepository(User::class)->findAll();
+
+        $data = array_map(fn(User $u) => [
+            'id' => $u->getId(),
+            'pseudo' => $u->getPseudo(),
+            'email' => $u->getEmail(),
+            'creadits' => $u->getCreadits(),
+            'role' => $u->getRole(),
+            'status' => $u->getStatus(),
+            'createdAt' => $u->getCreatedAt()->format('Y-m-d H:i:s')
+        ], $users);
+
+        return new JsonResponse($data);
+    }
+
+    // ------------------- AFFICHER UN SEUL -------------------
+    #[Route('/{id}', name: 'get_user', methods: ['GET'])]
+    public function show(int $id): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
         }
 
-        if ($data['password'] !== $data['password_confirmation']) {
-            return $this->json(['error' => 'Passwords do not match'], 400);
-        }
-
-        // Vérifier si l'email ou le username existe déjà
-        $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-        if ($existingUser) {
-            return $this->json(['error' => 'Email already registered'], 400);
-        }
-
-        $existingUser = $em->getRepository(User::class)->findOneBy(['username' => $data['username']]);
-        if ($existingUser) {
-            return $this->json(['error' => 'Username already taken'], 400);
-        }
-
-        // Création du User
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setUsername($data['username']);
-        $user->setRole('passenger'); // rôle par défaut
-        $user->setStatus('active');  // statut par défaut
-
-        // Hachage du mot de passe
-        $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
-        $user->setPasswordHash($hashedPassword);
-
-        // Validation
-        $errors = $validator->validate($user);
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
-            }
-            return $this->json(['errors' => $errorMessages], 400);
-        }
-
-        // Enregistrement en base
-        $em->persist($user);
-        $em->flush();
-
-        // Réponse JSON sécurisée
-        $response = [
+        return new JsonResponse([
             'id' => $user->getId(),
-            'username' => $user->getUsername(),
+            'pseudo' => $user->getPseudo(),
             'email' => $user->getEmail(),
-            'credits' => $user->getCredits(),
+            'creadits' => $user->getCreadits(),
             'role' => $user->getRole(),
             'status' => $user->getStatus(),
-            'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
-        ];
+            'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
+        ]);
+    }
 
-        return $this->json($response, 201);
+    // ------------------- MODIFIER -------------------
+    #[Route('/{id}', name: 'update_user', methods: ['PUT'])]
+    public function update(int $id, Request $request): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['email'])) $user->setEmail($data['email']);
+        if (isset($data['pseudo'])) $user->setPseudo($data['pseudo']);
+        if (isset($data['password'])) $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+        if (isset($data['creadits'])) $user->setCreadits($data['creadits']);
+        if (isset($data['role'])) $user->setRole($data['role']);
+        if (isset($data['status'])) $user->setStatus($data['status']);
+
+        $this->em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Utilisateur mis à jour']);
+    }
+
+    // ------------------- DELETE -------------------
+    #[Route('/{id}', name: 'delete_user', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
+        }
+
+        $this->em->remove($user);
+        $this->em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Utilisateur supprimé']);
     }
 }
