@@ -17,17 +17,17 @@ class AuthController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $pseudo = $data['pseudo'] ?? null;
+        $email = $data['email'] ?? null;
         $password = $data['password'] ?? null;
 
-        if (!$pseudo || !$password) {
+        if (!$email || !$password) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Pseudo et mot de passe requis'
             ], 400);
         }
 
-        $user = $em->getRepository(User::class)->findOneBy(['pseudo' => $pseudo]);
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
 
         if (!$user) {
             return new JsonResponse([

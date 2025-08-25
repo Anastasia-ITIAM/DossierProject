@@ -1,9 +1,9 @@
 export function initSignIn() {
 
-    // Validation Pseudo (3-20 caractères, lettres, chiffres, underscore)
-    function validatePseudo(pseudo) {
-        const regex = /^[a-zA-Z0-9_]{3,20}$/;
-        return regex.test(pseudo);
+    // Validation email
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
     }
 
     // Récupérer le formulaire par ID
@@ -13,11 +13,11 @@ export function initSignIn() {
     form.addEventListener('submit', async (e) => {  
         e.preventDefault();
 
-        const pseudo = form.pseudo.value.trim();
+        const email = form.email.value.trim();
         const password = form.motdepasse.value;
 
         // Alerts de validation
-        if (!validatePseudo(pseudo)) return alert('Pseudo invalide (3-20 caractères)');
+        if (!validateEmail(email)) return alert('Email invalide');
         if (password.length < 8) return alert('Mot de passe invalide (au moins 8 caractères)');
 
        
@@ -25,7 +25,7 @@ export function initSignIn() {
        
         // Préparer le JSON pour le back-end
         const data = {
-            pseudo: pseudo,
+            email: email,
             password: password
         };
 
