@@ -115,28 +115,63 @@ public function create(Request $request): JsonResponse
         ]);
     }
 
-    // ------------------- MODIFIER -------------------
-    #[Route('/{id}', name: 'update_user', methods: ['PUT'])]
-    public function update(int $id, Request $request): JsonResponse
-    {
-        $user = $this->em->getRepository(User::class)->find($id);
-        if (!$user) {
-            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
-        }
+    // ------------------- MODIFIER(profil.html/js) -------------------
+    #[Route('/{id}', name: 'update_user', methods: ['POST'])]
+public function update(int $id, Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $user = $em->getRepository(User::class)->find($id);
 
-        $data = json_decode($request->getContent(), true);
-
-        if (isset($data['email'])) $user->setEmail($data['email']);
-        if (isset($data['pseudo'])) $user->setPseudo($data['pseudo']);
-        if (isset($data['password'])) $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
-        if (isset($data['creadits'])) $user->setCreadits($data['creadits']);
-        if (isset($data['role'])) $user->setRole($data['role']);
-        if (isset($data['status'])) $user->setStatus($data['status']);
-
-        $this->em->flush();
-
-        return new JsonResponse(['success' => true, 'message' => 'Utilisateur mis à jour']);
+    if (!$user) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Utilisateur non trouvé'
+        ], 404);
     }
+
+    // Récupération des données (textuelles)
+    $data = $request->request->all();
+
+    if (isset($data['email'])) {$user->setEmail($data['email']);}
+    if (isset($data['pseudo'])) {$user->setPseudo($data['pseudo']);}
+    if (isset($data['firstName'])) {$user->setFirstName($data['firstName']);}
+    if (isset($data['lastName'])) {$user->setLastName($data['lastName']);}
+    if (isset($data['birthDate']) && $data['birthDate'] !== '') {
+        $user->setBirthDate(new \DateTime($data['birthDate']));
+    }
+    if (isset($data['postalAddress'])) {$user->setPostalAddress($data['postalAddress']);}
+    if (isset($data['phone'])) {$user->setPhone($data['phone']);}
+    if (isset($data['password']) && $data['password'] !== '') {
+        $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+    }
+
+    // Gestion upload photo
+    $file = $request->files->get('photo_profil');
+
+    if ($file) {
+        $fileName = uniqid() . '.' . $file->guessExtension();
+        $file->move($this->getParameter('profiles_directory'), $fileName);
+        $user->setProfilePhotoUrl('/uploads/profiles/' . $fileName);
+    }
+
+    $em->persist($user);
+    $em->flush();
+
+    return new JsonResponse([
+        'success' => true,
+        'message' => 'Profil mis à jour',
+        'user' => [
+            'id' => $user->getId(),
+            'pseudo' => $user->getPseudo(),
+            'email' => $user->getEmail(),
+            'firstName' => $user->getFirstName(),
+            'lastName' => $user->getLastName(),
+            'birthDate' => $user->getBirthDate()?->format('Y-m-d'),
+            'postalAddress' => $user->getPostalAddress(),
+            'phone' => $user->getPhone(),
+            'profilePhotoUrl' => $user->getProfilePhotoUrl(),
+        ]
+    ]);
+}
 
     // ------------------- SUPPRIMER -------------------
     #[Route('/{id}', name: 'delete_user', methods: ['DELETE'])]

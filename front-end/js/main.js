@@ -4,6 +4,7 @@ import { initTogglePassword } from './togglePassword.js';
 import { initSwapAddress } from './swapAddress.js';
 import { initSignUp } from './signUp.js'; 
 import { initSignIn } from './signIn.js'; 
+import { initProfil } from './profil.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -12,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Animations des formulaires, affichage/masquage des mots de passe, échange des adresses départ/arrivée
         initFormsAnimation();
-        initTogglePassword('motdepasse', 'togglePassword');
+        initTogglePassword('password', 'togglePassword');
         initTogglePassword('confirmer_motdepasse', 'toggleConfirmPassword');
         initSwapAddress('depart', 'arrivee', 'swapBtn');
 
@@ -24,6 +25,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Configuration spécifique à la page de connexion (signIn.html)
         if (document.body.classList.contains('signin-page')) {
             initSignIn();
+        }
+
+        // Configuration spécifique à la page profil (profil.html)
+        if (document.body.classList.contains('profil-page')) {
+            initProfil();
         }
 
         console.log("Initialisation JS terminée !");

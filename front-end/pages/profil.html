@@ -21,8 +21,8 @@
     <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
 </head>
 
-<body>
-<!-- Header inclus via JS -->
+<body class="profil-page">
+    <!-- Header inclus via JS -->
 <div id="header-placeholder"></div>
 
 
@@ -60,58 +60,59 @@
         <!-- Colonne droite -->
         <div class="col-md-8 p-4 shadow rounded">
             <h5 class="text-center mb-4">Vous pouvez compléter votre profil</h5>
-            <form action="" method="post" enctype="multipart/form-data" novalidate>
-            
+            <form id="updateProfileForm" method="POST" enctype="multipart/form-data" novalidate>
+            <input type="hidden" name="_method" value="PUT">
+
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" class="form-control" required value="jean.dupont@example.com">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="jean.dupont@example.com" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label for="pseudo" class="form-label">Pseudo</label>
-                <input type="text" id="pseudo" class="form-control" required value="JeanDu75">
+                <label for="pseudo">Pseudo</label>
+                <input type="text" id="pseudo" name="pseudo" value="JeanDu75" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label for="name" class="form-label">Prénom</label>
-                <input type="text" id="name" class="form-control" required value="Jean">
+                <label for="firstName">Prénom</label>
+                <input type="text" id="firstName" name="firstName" value="Jean" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label for="last_name" class="form-label">Nom de famille</label>
-                <input type="text" id="last_name" class="form-control" required value="Dupont">
+                <label for="lastName">Nom de famille</label>
+                <input type="text" id="lastName" name="lastName" value="Dupont" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label for="birth_date" class="form-label">Date de naissance</label>
-                <input type="date" id="birth_date" class="form-control" required value="1990-05-12">
+                <label for="birthDate">Date de naissance</label>
+                <input type="date" id="birthDate" name="birthDate" value="1990-05-12" class="form-control" required>
             </div>
 
             <div class="mb-3">
-                <label for="adresse" class="form-label">Adresse postale</label>
-                <textarea id="adresse" class="form-control" required>12 rue des Lilas, 75012 Paris</textarea>
+                <label for="postalAddress">Adresse postale</label>
+                <textarea id="postalAddress" name="postalAddress" class="form-control" required>12 rue des Lilas, 75012 Paris</textarea>
             </div>
 
             <div class="mb-3">
-                <label for="telephone" class="form-label">Téléphone</label>
-                <input type="tel" id="telephone" class="form-control" required value="+33 6 12 34 56 78">
+                <label for="phone">Téléphone</label>
+                <input type="tel" id="phone" name="phone" value="+33 6 12 34 56 78" class="form-control" required>
             </div>
 
             <div class="mb-3 ">
-                <label for="photo_profil" class="form-label">Photo de profil</label>
-                <input type="file" id="photo_profil" accept="image/*" class="form-control">
+                <label for="photo_profil">Photo de profil</label>
+                <input type="file" id="photo_profil" name="photo_profil" accept="image/*" class="form-control">
+            </div>
+            
+            <div class="mb-3 position-relative">
+                <label for="password">Nouveau mot de passe</label>
+                <input type="password" id="password" name="password" class="form-control">
+                <button type="button" id="togglePassword" class="btn btn-sm">👁️</button>
             </div>
 
             <div class="mb-3 position-relative">
-        <label for="nouveau_motdepasse" class="form-label">Nouveau mot de passe</label>
-        <input type="password" class="form-control" name="motdepasse" id="motdepasse" required />
-        <button type="button" id="togglePassword" class="btn btn-sm">👁️</button>
-            </div>
-
-            <div class="mb-3 position-relative">
-        <label for="confirmer_motdepasse" class="form-label">Confirmer le nouveau mot de passe</label>
-        <input type="password" class="form-control" id="confirmer_motdepasse" name="confirmer_motdepasse" required>
-        <button type="button" id="toggleConfirmPassword" class="btn btn-sm">👁️</button>
+                <label for="confirmer_motdepasse">Confirmer le nouveau mot de passe</label>
+                <input type="password" id="confirmer_motdepasse" name="confirmPassword" class="form-control">                
+                <button type="button" id="toggleConfirmPassword" class="btn btn-sm">👁️</button>
             </div>
 
             <div class="text-center">

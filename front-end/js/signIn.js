@@ -14,7 +14,7 @@ export function initSignIn() {
         e.preventDefault();
 
         const email = form.email.value.trim();
-        const password = form.motdepasse.value;
+        const password = form.password.value;
 
         // Alerts de validation
         if (!validateEmail(email)) return alert('Email invalide');
@@ -39,8 +39,8 @@ export function initSignIn() {
             const result = await response.json();
 
             if (response.ok && result.success) {
-                alert('Connexion réussie !');
-                window.location.href = '/pages/profil.html';
+                const userId = result.user.id;
+                window.location.href = `/pages/profil.html?userId=${userId}`;
             } else {
                 alert(result.message || 'Identifiants invalides');
             }
