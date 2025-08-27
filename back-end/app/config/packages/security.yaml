@@ -1,0 +1,41 @@
+security:
+    password_hashers:
+        App\Entity\User:
+            algorithm: auto
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        # Pas de sécurité en mode dev (profiler, debug, assets…)
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # Firewall pour le login JWT
+        login:
+            pattern: ^/api/auth/login
+            stateless: true
+            json_login:
+                check_path: /api/auth/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # Firewall pour toutes les autres routes API (protégées par JWT)
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+    access_control:
+        # Routes publiques (pas besoin de token)
+        - { path: ^/api/user, roles: PUBLIC_ACCESS }        # inscription
+        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }  # login
+
+        # Toutes les autres routes API nécessitent un token JWT
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

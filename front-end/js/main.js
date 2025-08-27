@@ -6,31 +6,29 @@ import { initSignUp } from './signUp.js';
 import { initSignIn } from './signIn.js'; 
 import { initProfil } from './profil.js';
 
+// Mapping page class -> init function
+const pageInits = {
+    'signup-page': initSignUp,
+    'signin-page': initSignIn,
+    'profil-page': initProfil,
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Injection des éléments communs(header,footer,modals)
+        // 1️⃣ Injection des éléments communs (header, footer, modals)
         await injectCommon();
 
-        // Animations des formulaires, affichage/masquage des mots de passe, échange des adresses départ/arrivée
+        // 2️⃣ Initialisations globales (animations, toggle, swap)
         initFormsAnimation();
         initTogglePassword('password', 'togglePassword');
         initTogglePassword('confirmer_motdepasse', 'toggleConfirmPassword');
         initSwapAddress('depart', 'arrivee', 'swapBtn');
 
-        // Configuration spécifique à la page d'inscription (signUp.html)
-        if (document.body.classList.contains('signup-page')) {
-            initSignUp();
-        }
-
-        // Configuration spécifique à la page de connexion (signIn.html)
-        if (document.body.classList.contains('signin-page')) {
-            initSignIn();
-        }
-
-        // Configuration spécifique à la page profil (profil.html)
-        if (document.body.classList.contains('profil-page')) {
-            initProfil();
-        }
+        // 3️⃣ Initialisation spécifique à la page
+        const bodyClass = document.body.classList.value.split(' ');
+        bodyClass.forEach(cls => {
+            if (pageInits[cls]) pageInits[cls]();
+        });
 
         console.log("Initialisation JS terminée !");
     } catch (err) {

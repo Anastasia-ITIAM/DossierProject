@@ -5,9 +5,11 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,7 +34,7 @@ class User
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(length: 100, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -53,33 +55,21 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
+    // === GETTERS & SETTERS ===
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    public function pseudo(): ?string
-    {
-        return $this->pseudo;
-    }
-
     public function getPseudo(): ?string
     {
-    
         return $this->pseudo;
     }
 
     public function setPseudo(string $pseudo): static
     {
         $this->pseudo = $pseudo;
-
         return $this;
     }
 
@@ -91,7 +81,6 @@ class User
     public function setFirstName(?string $firstName): static
     {
         $this->firstName = $firstName;
-
         return $this;
     }
 
@@ -103,7 +92,6 @@ class User
     public function setLastName(?string $lastName): static
     {
         $this->lastName = $lastName;
-
         return $this;
     }
 
@@ -115,7 +103,6 @@ class User
     public function setBirthDate(?\DateTime $birthDate): static
     {
         $this->birthDate = $birthDate;
-
         return $this;
     }
 
@@ -127,7 +114,6 @@ class User
     public function setPostalAddress(?string $postalAddress): static
     {
         $this->postalAddress = $postalAddress;
-
         return $this;
     }
 
@@ -139,7 +125,6 @@ class User
     public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
-
         return $this;
     }
 
@@ -151,7 +136,6 @@ class User
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -163,7 +147,6 @@ class User
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -175,7 +158,6 @@ class User
     public function setCreadits(int $creadits): static
     {
         $this->creadits = $creadits;
-
         return $this;
     }
 
@@ -187,7 +169,6 @@ class User
     public function setRole(string $role): static
     {
         $this->role = $role;
-
         return $this;
     }
 
@@ -199,7 +180,6 @@ class User
     public function setCreatedAt(\DateTime $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -211,7 +191,6 @@ class User
     public function setProfilePhotoUrl(?string $profilePhotoUrl): static
     {
         $this->profilePhotoUrl = $profilePhotoUrl;
-
         return $this;
     }
 
@@ -223,7 +202,25 @@ class User
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
+    }
+
+    // === MÉTHODES OBLIGATOIRES POUR SYMFONY SECURITY ===
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        // ton champ est "role" (string) → on l’emballe dans un tableau
+        $roles = [$this->role ?? 'ROLE_PASSENGER'];
+        return array_unique($roles);
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Si tu stockes des données sensibles temporaires (ex: plainPassword)
     }
 }
