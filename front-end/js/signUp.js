@@ -48,7 +48,10 @@ export function initSignUp() {
             password: password
         };
 
+
         try {
+                    console.log("📤 Data envoyée au backend :", data);
+
             const response = await fetch('http://localhost:8081/api/user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
