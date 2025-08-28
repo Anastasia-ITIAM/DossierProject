@@ -81,7 +81,7 @@ export function initSignIn() {
             const result = await login(email, password);
             if (result.status === 'ok') {
                 alert('Connexion réussie !');
-                window.location.href = '/pages/dashboard.html';
+                window.location.href = '/pages/profil.html';
             } else {
                 alert(result.message);
             }

@@ -1,4 +1,3 @@
-import { login } from './auth.js'; // Assure-toi que login() est exporté dans auth.js
 
 export function initSignUp() {
 
