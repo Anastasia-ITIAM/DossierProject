@@ -37,7 +37,7 @@ async function authFetch(url, options = {}) {
 }
 
 // --- Connexion ---
-async function login(email, password) {
+export async function login(email, password) {
     const res = await fetch('http://localhost:8081/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,6 +58,7 @@ async function login(email, password) {
 
     return { status: 'error', message: data.message || 'Erreur de connexion' };
 }
+
 
 // --- Initialisation formulaire sign-in ---
 export function initSignIn() {
