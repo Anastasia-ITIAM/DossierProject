@@ -3,7 +3,7 @@ import { initFormsAnimation } from './formsAnimation.js';
 import { initTogglePassword } from './togglePassword.js';
 import { initSwapAddress } from './swapAddress.js';
 import { initSignUp } from './signUp.js'; 
-import { initSignIn } from './signIn.js'; 
+import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
 
 // Mapping page class -> init function
@@ -13,18 +13,36 @@ const pageInits = {
     'profil-page': initProfil,
 };
 
+// Initialisation de l'utilisateur connecté
+async function initUser() {
+    const user = await getMe();
+    if (user) {
+        console.log("Utilisateur connecté :", user);
+        window.currentUserId = user.id;   // ID accessible globalement
+        window.currentUser = user;        // Autres infos disponibles
+    } else {
+        // Redirige vers login si non connecté
+        if (!document.body.classList.contains('signin-page')) {
+            window.location.href = '/pages/signIn.html';
+        }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // 1️⃣ Injection des éléments communs (header, footer, modals)
+        // Injection des éléments communs (header, footer, modals)
         await injectCommon();
 
-        // 2️⃣ Initialisations globales (animations, toggle, swap)
+        // Initialisation de l'utilisateur connecté
+        await initUser();
+
+        // Initialisations globales (animations, toggle, swap)
         initFormsAnimation();
         initTogglePassword('password', 'togglePassword');
         initTogglePassword('confirmPassword', 'toggleConfirmPassword');
         initSwapAddress('depart', 'arrivee', 'swapBtn');
 
-        // 3️⃣ Initialisation spécifique à la page
+        // Initialisation spécifique à la page
         const bodyClass = document.body.classList.value.split(' ');
         bodyClass.forEach(cls => {
             if (pageInits[cls]) pageInits[cls]();

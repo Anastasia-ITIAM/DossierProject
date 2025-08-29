@@ -1,28 +1,28 @@
 export function initProfil() {
+    
     const form = document.getElementById('updateProfileForm');
     if (!form) return;
 
-    // Récupérer l'ID utilisateur depuis l'URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
+    // ID utilisateur global 
+    const userId = window.currentUserId;
     if (!userId) {
-        console.error("userId non défini dans l'URL");
+        console.error("Aucun utilisateur connecté !");
         return;
     }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Créer FormData à partir du formulaire
+        // FormData à partir du formulaire
         const formData = new FormData(form);
 
-        // --- DEBUG: afficher tout le FormData pour vérifier ce qui est envoyé ---
+        // DEBUG: afficher tout le FormData pour vérifier ce qui est envoyé
         console.log("FormData envoyé :");
         for (let pair of formData.entries()) {
             console.log(pair[0], pair[1]);
         }
 
-        // --- VALIDATIONS ---
+        // Validations
         const email = formData.get("email");
         const pseudo = formData.get("pseudo");
         const password = formData.get("password");
@@ -41,10 +41,11 @@ export function initProfil() {
             if (password !== confirmPassword) return alert("Les mots de passe ne correspondent pas");
         }
 
-        // --- ENVOI ---
+        // Envoi Fetch
         try {
+            
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
-                method: "POST", // Utilisation directe de PUT
+                method: "POST",
                 body: formData
             });
 
@@ -58,13 +59,15 @@ export function initProfil() {
             if (result.success) {
                 alert("Profil mis à jour !");
                 console.log("Utilisateur mis à jour :", result.user);
-                // Optionnel : mettre à jour les champs du formulaire avec la réponse du serveur
+
+                // mettre à jour les champs du formulaire avec la réponse du serveur
                 for (const key in result.user) {
                     const input = form.querySelector(`[name="${key}"]`);
                     if (input) {
                         input.value = result.user[key] || '';
                     }
                 }
+
             } else {
                 alert(result.message || "Erreur serveur");
             }
