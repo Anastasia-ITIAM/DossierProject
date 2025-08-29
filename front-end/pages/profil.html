@@ -60,9 +60,8 @@
         <!-- Colonne droite -->
         <div class="col-md-8 p-4 shadow rounded">
             <h5 class="text-center mb-4">Vous pouvez compléter votre profil</h5>
-            <form id="updateProfileForm" method="POST" enctype="multipart/form-data" novalidate>
+            <form id="updateProfileForm" enctype="multipart/form-data" novalidate>
             <input type="hidden" name="_method" value="PUT">
-
             <div class="mb-3">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" value="jean.dupont@example.com" class="form-control" required>
@@ -110,8 +109,8 @@
             </div>
 
             <div class="mb-3 position-relative">
-                <label for="confirmer_motdepasse">Confirmer le nouveau mot de passe</label>
-                <input type="password" id="confirmer_motdepasse" name="confirmPassword" class="form-control">                
+                <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control">                
                 <button type="button" id="toggleConfirmPassword" class="btn btn-sm">👁️</button>
             </div>
 

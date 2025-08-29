@@ -7,8 +7,12 @@ RUN apk add --no-cache git unzip icu-dev libzip-dev bash
 RUN docker-php-ext-configure intl \
  && docker-php-ext-install intl pdo pdo_mysql zip opcache
 
+# Copier la config uploads.ini pour gérer la taille des uploads
+COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 USER www-data
 

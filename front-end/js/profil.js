@@ -1,12 +1,14 @@
 export function initProfil() {
-
     const form = document.getElementById('updateProfileForm');
     if (!form) return;
 
     // Récupérer l'ID utilisateur depuis l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('userId');
-    if (!userId) return console.error("userId non défini dans l'URL");
+    if (!userId) {
+        console.error("userId non défini dans l'URL");
+        return;
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -14,16 +16,15 @@ export function initProfil() {
         // Créer FormData à partir du formulaire
         const formData = new FormData(form);
 
-        // Pour que Symfony traite comme PUT
-        formData.append("_method", "PUT");
+        // ✅ On utilise directement PUT, pas besoin de _method
+        // formData.append("_method", "PUT");
 
-        // Récupération des valeurs pour validation côté JS
+        // --- VALIDATIONS ---
         const email = formData.get("email");
         const pseudo = formData.get("pseudo");
         const password = formData.get("password");
         const confirmPassword = formData.get("confirmPassword");
 
-        // --- VALIDATIONS ---
         const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         if (!validateEmail(email)) return alert("Email invalide");
 
@@ -38,12 +39,16 @@ export function initProfil() {
         }
 
         // --- ENVOI ---
-        
         try {
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
-                method: "POST", // Symfony traitera PUT via _method
+                method: "PUT", // ✅ on utilise directement PUT
                 body: formData
             });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Erreur HTTP ${res.status}: ${errorText}`);
+            }
 
             const result = await res.json();
 
@@ -55,7 +60,7 @@ export function initProfil() {
             }
         } catch (err) {
             console.error("Erreur fetch :", err);
-            alert("Erreur réseau");
+            alert("Erreur réseau ou serveur : " + err.message);
         }
     });
 }
