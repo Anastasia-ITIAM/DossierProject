@@ -45,7 +45,7 @@ class AuthController extends AbstractController
             'email' => $user->getEmail(),
             'role' => $user->getRole(),
             'pseudo' => $user->getPseudo(),
-            'creadits' => $user->getCreadits(),
+            'credits' => $user->getCredits(),
             'status' => $user->getStatus(),
         ];
 
@@ -69,7 +69,7 @@ class AuthController extends AbstractController
             'pseudo' => $user->getPseudo(),
             'email' => $user->getEmail(),
             'role' => $user->getRole(),
-            'creadits' => $user->getCreadits(),
+            'credits' => $user->getCredits(),
             'status' => $user->getStatus(),
         ]);
     }

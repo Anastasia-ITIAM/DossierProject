@@ -20,6 +20,7 @@
         "symfony/mime": "7.3.*",
         "symfony/runtime": "7.3.*",
         "symfony/security-bundle": "7.3.*",
+        "symfony/validator": "7.3.*",
         "symfony/yaml": "7.3.*"
     },
     "config": {
@@ -73,6 +74,7 @@
         }
     },
     "require-dev": {
+        "symfony/debug-bundle": "7.3.*",
         "symfony/maker-bundle": "^1.64"
     }
 }
