@@ -16,8 +16,11 @@ export function initProfil() {
         // Créer FormData à partir du formulaire
         const formData = new FormData(form);
 
-        // ✅ On utilise directement PUT, pas besoin de _method
-        // formData.append("_method", "PUT");
+        // --- DEBUG: afficher tout le FormData pour vérifier ce qui est envoyé ---
+        console.log("FormData envoyé :");
+        for (let pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
 
         // --- VALIDATIONS ---
         const email = formData.get("email");
@@ -41,7 +44,7 @@ export function initProfil() {
         // --- ENVOI ---
         try {
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
-                method: "PUT", // ✅ on utilise directement PUT
+                method: "POST", // Utilisation directe de PUT
                 body: formData
             });
 
@@ -55,6 +58,13 @@ export function initProfil() {
             if (result.success) {
                 alert("Profil mis à jour !");
                 console.log("Utilisateur mis à jour :", result.user);
+                // Optionnel : mettre à jour les champs du formulaire avec la réponse du serveur
+                for (const key in result.user) {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        input.value = result.user[key] || '';
+                    }
+                }
             } else {
                 alert(result.message || "Erreur serveur");
             }

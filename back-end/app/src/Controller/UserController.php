@@ -129,7 +129,7 @@ class UserController extends AbstractController
 
     // MODIFIER UN UTILISATEUR (PUT ou POST)
 
-    #[Route('/{id}', name: 'update_user', methods: ['POST'])]
+    #[Route('/{id}', name: 'update_user', methods: ['POST', 'PUT'])]
     public function update(
         int $id,
         Request $request,
@@ -141,8 +141,7 @@ class UserController extends AbstractController
                 return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
             }
 
-            // Décodage des données JSON ou POST classiques
-            $data = json_decode($request->getContent(), true) ?? $request->request->all();
+            $data = $request->request->all(); 
 
             // Mises à jour sécurisées
             if (isset($data['email'])) $user->setEmail($data['email']);

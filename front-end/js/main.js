@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // 2️⃣ Initialisations globales (animations, toggle, swap)
         initFormsAnimation();
         initTogglePassword('password', 'togglePassword');
-        initTogglePassword('confirmer_motdepasse', 'toggleConfirmPassword');
+        initTogglePassword('confirmPassword', 'toggleConfirmPassword');
         initSwapAddress('depart', 'arrivee', 'swapBtn');
 
         // 3️⃣ Initialisation spécifique à la page
