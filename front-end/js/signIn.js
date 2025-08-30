@@ -2,9 +2,6 @@ console.log('signIn.js chargé !');
 
 const TOKEN_KEY = 'jwt';
 
-// ---------------------------
-// Fonctions utilitaires
-// ---------------------------
 
 // Supprime les caractères HTML pour éviter XSS
 function sanitizeInput(input) {
@@ -18,23 +15,21 @@ function safeAlert(message) {
     alert(div.textContent);
 }
 
-// ---------------------------
 // Gestion du token JWT
-// ---------------------------
 
-export function setToken(token) {          // ✅ exportée
+export function setToken(token) {          
     localStorage.setItem(TOKEN_KEY, token);
 }
 
-export function getToken() {               // ✅ exportée
+export function getToken() {               
     return localStorage.getItem(TOKEN_KEY);
 }
 
-export function removeToken() {            // ✅ exportée
+export function removeToken() {            
     localStorage.removeItem(TOKEN_KEY);
 }
 
-export function isTokenExpired(token) {    // ✅ exportée
+export function isTokenExpired(token) {   
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return Date.now() >= payload.exp * 1000;
@@ -44,14 +39,12 @@ export function isTokenExpired(token) {    // ✅ exportée
     }
 }
 
-export function logout() {                 // ✅ exportée
+export function logout() {               
     removeToken();
     window.location.href = '/pages/signIn.html';
 }
 
-// ---------------------------
 // Fetch protégé avec JWT
-// ---------------------------
 
 export async function authFetch(url, options = {}) {
     const token = getToken();
@@ -85,9 +78,7 @@ export async function authFetch(url, options = {}) {
     return res;
 }
 
-// ---------------------------
 // Connexion utilisateur
-// ---------------------------
 
 export async function login(email, password) {
     try {
@@ -114,9 +105,7 @@ export async function login(email, password) {
     }
 }
 
-// ---------------------------
 // Initialisation formulaire login
-// ---------------------------
 
 export function initSignIn() {
     const form = document.getElementById('signInForm');
@@ -147,9 +136,7 @@ export function initSignIn() {
     });
 }
 
-// ---------------------------
 // Récupération infos utilisateur
-// ---------------------------
 
 export async function getMe() {
     try {

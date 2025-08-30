@@ -130,67 +130,92 @@ class UserController extends AbstractController
     // MODIFIER UN UTILISATEUR (PUT ou POST)
 
     #[Route('/{id}', name: 'update_user', methods: ['POST', 'PUT'])]
-    public function update(
-        int $id,
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher
-    ): JsonResponse {
-        try {
-            $user = $this->em->getRepository(User::class)->find($id);
-            if (!$user) {
-                return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
-            }
-
-            $data = $request->request->all(); 
-
-            // Mises à jour sécurisées
-            if (isset($data['email'])) $user->setEmail($data['email']);
-            if (isset($data['pseudo'])) $user->setPseudo($data['pseudo']);
-            if (isset($data['firstName'])) $user->setFirstName($data['firstName']);
-            if (isset($data['lastName'])) $user->setLastName($data['lastName']);
-            if (isset($data['birthDate']) && $data['birthDate'] !== '') {
-                $user->setBirthDate(new \DateTime($data['birthDate']));
-            }
-            if (isset($data['postalAddress'])) $user->setPostalAddress($data['postalAddress']);
-            if (isset($data['phone'])) $user->setPhone($data['phone']);
-            if (isset($data['password']) && $data['password'] !== '') {
-                $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
-            }
-
-            // Upload de photo de profil sécurisé
-            $file = $request->files->get('photo_profil');
-            if ($file) {
-                $fileName = uniqid() . '.' . $file->guessExtension(); // nom unique
-                $file->move($this->getParameter('profiles_directory'), $fileName);
-                $user->setProfilePhotoUrl('/uploads/profiles/' . $fileName);
-            }
-
-            $this->em->persist($user);
-            $this->em->flush();
-
-            return new JsonResponse([
-                'success' => true,
-                'message' => 'Profil mis à jour',
-                'user' => [
-                    'id' => $user->getId(),
-                    'pseudo' => $user->getPseudo(),
-                    'email' => $user->getEmail(),
-                    'firstName' => $user->getFirstName(),
-                    'lastName' => $user->getLastName(),
-                    'birthDate' => $user->getBirthDate()?->format('Y-m-d'),
-                    'postalAddress' => $user->getPostalAddress(),
-                    'phone' => $user->getPhone(),
-                    'profilePhotoUrl' => $user->getProfilePhotoUrl(),
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+public function update(
+    int $id,
+    Request $request,
+    UserPasswordHasherInterface $passwordHasher
+): JsonResponse {
+    try {
+        $user = $this->em->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
         }
+
+        $data = $request->request->all(); 
+
+        // Vérifications unicité email/pseudo
+
+        if (isset($data['email'])) {
+            $existingEmailUser = $this->em->getRepository(User::class)
+                ->findOneBy(['email' => $data['email']]);
+            if ($existingEmailUser && $existingEmailUser->getId() !== $user->getId()) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Email déjà utilisé'
+                ], 400);
+            }
+        }
+
+        if (isset($data['pseudo'])) {
+            $existingPseudoUser = $this->em->getRepository(User::class)
+                ->findOneBy(['pseudo' => $data['pseudo']]);
+            if ($existingPseudoUser && $existingPseudoUser->getId() !== $user->getId()) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Pseudo déjà utilisé'
+                ], 400);
+            }
+        }
+
+        // Mises à jour sécurisées
+
+        if (isset($data['email'])) $user->setEmail($data['email']);
+        if (isset($data['pseudo'])) $user->setPseudo($data['pseudo']);
+        if (isset($data['firstName'])) $user->setFirstName($data['firstName']);
+        if (isset($data['lastName'])) $user->setLastName($data['lastName']);
+        if (isset($data['birthDate']) && $data['birthDate'] !== '') {
+            $user->setBirthDate(new \DateTime($data['birthDate']));
+        }
+        if (isset($data['postalAddress'])) $user->setPostalAddress($data['postalAddress']);
+        if (isset($data['phone'])) $user->setPhone($data['phone']);
+        if (isset($data['password']) && $data['password'] !== '') {
+            $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+        }
+
+        // Upload photo
+        $file = $request->files->get('photo_profil');
+        if ($file) {
+            $fileName = uniqid() . '.' . $file->guessExtension();
+            $file->move($this->getParameter('profiles_directory'), $fileName);
+            $user->setProfilePhotoUrl('/uploads/profiles/' . $fileName);
+        }
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Profil mis à jour',
+            'user' => [
+                'id' => $user->getId(),
+                'pseudo' => $user->getPseudo(),
+                'email' => $user->getEmail(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'birthDate' => $user->getBirthDate()?->format('Y-m-d'),
+                'postalAddress' => $user->getPostalAddress(),
+                'phone' => $user->getPhone(),
+                'profilePhotoUrl' => $user->getProfilePhotoUrl(),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
 
     // SUPPRIMER UN UTILISATEUR
     

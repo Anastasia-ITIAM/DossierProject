@@ -5,6 +5,7 @@ function sanitizeInput(input) {
     return input.replace(/[<>]/g, ""); // supprime balises HTML
 }
 
+// Alert sécurisée : ne permet pas d’exécuter du HTML ou du JS injecté
 function safeAlert(message) {
     const div = document.createElement('div');
     div.textContent = Array.isArray(message) ? message.join('\n') : message;

@@ -3,7 +3,6 @@ export function initProfil() {
     const form = document.getElementById('updateProfileForm');
     if (!form) return;
 
-    // ID utilisateur global 
     const userId = window.currentUserId;
     if (!userId) {
         console.error("Aucun utilisateur connecté !");
@@ -13,64 +12,53 @@ export function initProfil() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // FormData à partir du formulaire
         const formData = new FormData(form);
 
-        // DEBUG: afficher tout le FormData pour vérifier ce qui est envoyé
         console.log("FormData envoyé :");
-        for (let pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
+        for (let [key, value] of formData.entries()) {
+            console.log(key, ":", value);
         }
 
-        // Validations
+        // Validations front
         const email = formData.get("email");
         const pseudo = formData.get("pseudo");
         const password = formData.get("password");
         const confirmPassword = formData.get("confirmPassword");
 
         const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        if (!validateEmail(email)) return alert("Email invalide");
-
         const validatePseudo = (pseudo) => /^[a-zA-Z0-9_]{3,20}$/.test(pseudo);
+        const validatePassword = (password) =>
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+
+        if (!validateEmail(email)) return alert("Email invalide");
         if (!validatePseudo(pseudo)) return alert("Pseudo invalide (3-20 caractères, lettres, chiffres, underscore)");
+        if (password && !validatePassword(password)) return alert("Mot de passe invalide.");
+        if (password && password !== confirmPassword) return alert("Les mots de passe ne correspondent pas");
 
-        if (password) {
-            const validatePassword = (password) =>
-                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
-            if (!validatePassword(password)) return alert("Mot de passe invalide. Il doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.");
-            if (password !== confirmPassword) return alert("Les mots de passe ne correspondent pas");
-        }
-
-        // Envoi Fetch
         try {
-            
+            // Envoi vers le back
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
                 method: "POST",
                 body: formData
             });
 
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(`Erreur HTTP ${res.status}: ${errorText}`);
-            }
-
             const result = await res.json();
 
-            if (result.success) {
-                alert("Profil mis à jour !");
-                console.log("Utilisateur mis à jour :", result.user);
-
-                // mettre à jour les champs du formulaire avec la réponse du serveur
-                for (const key in result.user) {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input) {
-                        input.value = result.user[key] || '';
-                    }
-                }
-
-            } else {
-                alert(result.message || "Erreur serveur");
+            if (!res.ok || !result.success) {
+                // Affiche les erreurs du back (email/pseudo déjà utilisé)
+                return alert(result.message || `Erreur serveur : ${res.status}`);
             }
+
+            // Si tout est ok
+            alert("Profil mis à jour !");
+            console.log("Utilisateur mis à jour :", result.user);
+
+            // Mise à jour des champs du formulaire
+            for (const key in result.user) {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) input.value = result.user[key] || '';
+            }
+
         } catch (err) {
             console.error("Erreur fetch :", err);
             alert("Erreur réseau ou serveur : " + err.message);
