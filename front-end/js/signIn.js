@@ -2,6 +2,9 @@ console.log('signIn.js chargé !');
 
 const TOKEN_KEY = 'jwt';
 
+// ---------------------------
+// Fonctions utilitaires
+// ---------------------------
 
 // Supprime les caractères HTML pour éviter XSS
 function sanitizeInput(input) {
@@ -15,23 +18,23 @@ function safeAlert(message) {
     alert(div.textContent);
 }
 
-
+// ---------------------------
 // Gestion du token JWT
+// ---------------------------
 
-function setToken(token) {
+export function setToken(token) {          // ✅ exportée
     localStorage.setItem(TOKEN_KEY, token);
 }
 
-function getToken() {
+export function getToken() {               // ✅ exportée
     return localStorage.getItem(TOKEN_KEY);
 }
 
-function removeToken() {
+export function removeToken() {            // ✅ exportée
     localStorage.removeItem(TOKEN_KEY);
 }
 
-// Vérifie si le token est expiré
-function isTokenExpired(token) {
+export function isTokenExpired(token) {    // ✅ exportée
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return Date.now() >= payload.exp * 1000;
@@ -41,18 +44,26 @@ function isTokenExpired(token) {
     }
 }
 
-// Déconnexion + redirection vers la page login
-function logout() {
+export function logout() {                 // ✅ exportée
     removeToken();
     window.location.href = '/pages/signIn.html';
 }
 
+// ---------------------------
 // Fetch protégé avec JWT
+// ---------------------------
+
 export async function authFetch(url, options = {}) {
     const token = getToken();
 
     if (!token || isTokenExpired(token)) {
-        logout();
+        console.warn("Token expiré ou absent");
+
+        // Si on est sur une page protégée → redirection
+        if (window.location.pathname.includes("profil.html")) {
+            logout();
+        }
+
         throw new Error('Token expiré ou non présent');
     }
 
@@ -65,14 +76,19 @@ export async function authFetch(url, options = {}) {
     const res = await fetch(url, options);
 
     if (res.status === 401) {
-        logout();
+        if (window.location.pathname.includes("profil.html")) {
+            logout();
+        }
         throw new Error('Token invalide ou expiré');
     }
 
     return res;
 }
 
+// ---------------------------
 // Connexion utilisateur
+// ---------------------------
+
 export async function login(email, password) {
     try {
         const res = await fetch('http://localhost:8081/api/auth/login', {
@@ -98,7 +114,9 @@ export async function login(email, password) {
     }
 }
 
+// ---------------------------
 // Initialisation formulaire login
+// ---------------------------
 
 export function initSignIn() {
     const form = document.getElementById('signInForm');
@@ -129,7 +147,9 @@ export function initSignIn() {
     });
 }
 
+// ---------------------------
 // Récupération infos utilisateur
+// ---------------------------
 
 export async function getMe() {
     try {

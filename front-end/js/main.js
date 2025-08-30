@@ -5,6 +5,7 @@ import { initSwapAddress } from './swapAddress.js';
 import { initSignUp } from './signUp.js'; 
 import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
+import { initHeader } from './header.js';
 
 // Mapping page class -> init function
 const pageInits = {
@@ -30,11 +31,9 @@ async function initUser() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Injection des éléments communs (header, footer, modals)
         await injectCommon();
-
-        // Initialisation de l'utilisateur connecté
         await initUser();
+        await initHeader();
 
         // Initialisations globales (animations, toggle, swap)
         initFormsAnimation();
