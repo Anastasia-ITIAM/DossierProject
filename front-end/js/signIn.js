@@ -2,7 +2,6 @@ console.log('signIn.js chargé !');
 
 const TOKEN_KEY = 'jwt';
 
-
 // Supprime les caractères HTML pour éviter XSS
 function sanitizeInput(input) {
     return input.replace(/[<>]/g, "");
@@ -16,20 +15,11 @@ function safeAlert(message) {
 }
 
 // Gestion du token JWT
+export function setToken(token) { localStorage.setItem(TOKEN_KEY, token); }
+export function getToken() { return localStorage.getItem(TOKEN_KEY); }
+export function removeToken() { localStorage.removeItem(TOKEN_KEY); }
 
-export function setToken(token) {          
-    localStorage.setItem(TOKEN_KEY, token);
-}
-
-export function getToken() {               
-    return localStorage.getItem(TOKEN_KEY);
-}
-
-export function removeToken() {            
-    localStorage.removeItem(TOKEN_KEY);
-}
-
-export function isTokenExpired(token) {   
+export function isTokenExpired(token) {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return Date.now() >= payload.exp * 1000;
@@ -39,24 +29,17 @@ export function isTokenExpired(token) {
     }
 }
 
-export function logout() {               
+export function logout() {
     removeToken();
     window.location.href = '/pages/signIn.html';
 }
 
 // Fetch protégé avec JWT
-
 export async function authFetch(url, options = {}) {
     const token = getToken();
-
     if (!token || isTokenExpired(token)) {
         console.warn("Token expiré ou absent");
-
-        // Si on est sur une page protégée → redirection
-        if (window.location.pathname.includes("profil.html")) {
-            logout();
-        }
-
+        if (window.location.pathname.includes("profil.html")) logout();
         throw new Error('Token expiré ou non présent');
     }
 
@@ -69,9 +52,7 @@ export async function authFetch(url, options = {}) {
     const res = await fetch(url, options);
 
     if (res.status === 401) {
-        if (window.location.pathname.includes("profil.html")) {
-            logout();
-        }
+        if (window.location.pathname.includes("profil.html")) logout();
         throw new Error('Token invalide ou expiré');
     }
 
@@ -79,16 +60,12 @@ export async function authFetch(url, options = {}) {
 }
 
 // Connexion utilisateur
-
 export async function login(email, password) {
     try {
         const res = await fetch('http://localhost:8081/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: sanitizeInput(email),
-                password
-            })
+            body: JSON.stringify({ email: sanitizeInput(email), password })
         });
 
         const data = await res.json();
@@ -98,7 +75,8 @@ export async function login(email, password) {
             return { status: 'ok', token: data.token };
         }
 
-        return { status: 'error', message: data.message || 'Identifiants invalides' };
+        // Toujours renvoyer le même message pour invalid credentials
+        return { status: 'error', message: 'Email ou mot de passe incorrect. Veuillez réessayer.' };
     } catch (err) {
         console.error('Erreur fetch login :', err);
         return { status: 'error', message: 'Erreur réseau ou serveur' };
@@ -106,7 +84,6 @@ export async function login(email, password) {
 }
 
 // Initialisation formulaire login
-
 export function initSignIn() {
     const form = document.getElementById('signInForm');
     if (!form) return;
@@ -137,7 +114,6 @@ export function initSignIn() {
 }
 
 // Récupération infos utilisateur
-
 export async function getMe() {
     try {
         const res = await authFetch('http://localhost:8081/api/auth/me');

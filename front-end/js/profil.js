@@ -1,5 +1,17 @@
 export function initProfil() {
-    
+
+    // --- Utilitaires sécurité ---
+    function sanitizeInput(input) {
+        if (typeof input !== "string") return input; // ignore fichiers ou autres objets
+        return input.replace(/[<>]/g, ""); // supprime balises HTML
+    }
+
+    function safeAlert(message) {
+        const div = document.createElement('div');
+        div.textContent = Array.isArray(message) ? message.join('\n') : message;
+        alert(div.textContent);
+    }
+
     const form = document.getElementById('updateProfileForm');
     if (!form) return;
 
@@ -14,7 +26,12 @@ export function initProfil() {
 
         const formData = new FormData(form);
 
-        console.log("FormData envoyé :");
+        // --- SANITIZE ALL INPUTS ---
+        for (let [key, value] of formData.entries()) {
+            formData.set(key, sanitizeInput(value));
+        }
+
+        console.log("FormData envoyé (sanitized) :");
         for (let [key, value] of formData.entries()) {
             console.log(key, ":", value);
         }
@@ -30,10 +47,10 @@ export function initProfil() {
         const validatePassword = (password) =>
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
-        if (!validateEmail(email)) return alert("Email invalide");
-        if (!validatePseudo(pseudo)) return alert("Pseudo invalide (3-20 caractères, lettres, chiffres, underscore)");
-        if (password && !validatePassword(password)) return alert("Mot de passe invalide.");
-        if (password && password !== confirmPassword) return alert("Les mots de passe ne correspondent pas");
+        if (!validateEmail(email)) return safeAlert("Email invalide");
+        if (!validatePseudo(pseudo)) return safeAlert("Pseudo invalide (3-20 caractères, lettres, chiffres, underscore)");
+        if (password && !validatePassword(password)) return safeAlert("Mot de passe invalide.");
+        if (password && password !== confirmPassword) return safeAlert("Les mots de passe ne correspondent pas");
 
         try {
             // Envoi vers le back
@@ -45,23 +62,22 @@ export function initProfil() {
             const result = await res.json();
 
             if (!res.ok || !result.success) {
-                // Affiche les erreurs du back (email/pseudo déjà utilisé)
-                return alert(result.message || `Erreur serveur : ${res.status}`);
+                return safeAlert(result.message || `Erreur serveur : ${res.status}`);
             }
 
             // Si tout est ok
-            alert("Profil mis à jour !");
+            safeAlert("Profil mis à jour !");
             console.log("Utilisateur mis à jour :", result.user);
 
-            // Mise à jour des champs du formulaire
+            // Mise à jour des champs du formulaire (sanitized)
             for (const key in result.user) {
                 const input = form.querySelector(`[name="${key}"]`);
-                if (input) input.value = result.user[key] || '';
+                if (input) input.value = sanitizeInput(result.user[key]) || '';
             }
 
         } catch (err) {
             console.error("Erreur fetch :", err);
-            alert("Erreur réseau ou serveur : " + err.message);
+            safeAlert("Erreur réseau ou serveur : " + err.message);
         }
     });
 }

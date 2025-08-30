@@ -130,18 +130,18 @@ class UserController extends AbstractController
     // MODIFIER UN UTILISATEUR (PUT ou POST)
 
     #[Route('/{id}', name: 'update_user', methods: ['POST', 'PUT'])]
-public function update(
-    int $id,
-    Request $request,
-    UserPasswordHasherInterface $passwordHasher
-): JsonResponse {
-    try {
-        $user = $this->em->getRepository(User::class)->find($id);
-        if (!$user) {
-            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
-        }
+    public function update(
+        int $id,
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher
+        ): JsonResponse {
+            try {
+            $user = $this->em->getRepository(User::class)->find($id);
+            if (!$user) {
+                return new JsonResponse(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
+            }
 
-        $data = $request->request->all(); 
+        $data = $request->request->all();
 
         // Vérifications unicité email/pseudo
 

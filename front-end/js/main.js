@@ -19,11 +19,10 @@ async function initUser() {
     const user = await getMe();
     if (user) {
         console.log("Utilisateur connecté :", user);
-        window.currentUserId = user.id;   // ID accessible globalement
-        window.currentUser = user;        // Autres infos disponibles
+        window.currentUserId = user.id;   
     } else {
-        // Redirige vers login si non connecté
-        if (!document.body.classList.contains('signin-page')) {
+        // Redirection uniquement pour les pages protégées
+        if (document.body.classList.contains('profil-page')) {
             window.location.href = '/pages/signIn.html';
         }
     }
