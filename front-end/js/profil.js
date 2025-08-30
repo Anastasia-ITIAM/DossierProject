@@ -2,8 +2,8 @@ export function initProfil() {
 
     // --- Utilitaires sécurité ---
     function sanitizeInput(input) {
-        if (typeof input !== "string") return input; // ignore fichiers ou autres objets
-        return input.replace(/[<>]/g, ""); // supprime balises HTML
+        if (typeof input !== "string") return input;
+        return input.replace(/[<>]/g, "");
     }
 
     function safeAlert(message) {
@@ -21,22 +21,60 @@ export function initProfil() {
         return;
     }
 
+    // --- Charger les données utilisateur ---
+    async function loadUserData() {
+        try {
+            // On tente de récupérer les données locales
+            const localData = JSON.parse(localStorage.getItem('userProfile')) || {};
+
+            if (Object.keys(localData).length > 0) {
+                // Pré-remplir le formulaire avec les données locales
+                for (const key in localData) {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) input.value = sanitizeInput(localData[key]) || '';
+                }
+            }
+
+            // Ensuite, on synchronise avec le serveur pour récupérer les dernières données
+            const res = await fetch(`http://localhost:8081/api/user/${userId}`);
+            const result = await res.json();
+            if (!res.ok || !result.success) {
+                console.error("Impossible de récupérer les données serveur");
+                return;
+            }
+
+            const serverData = result.user;
+
+            // Fusionner serveur + local (local prend le dessus si différent)
+            const finalData = { ...serverData, ...localData };
+
+            // Remplir le formulaire
+            for (const key in finalData) {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) input.value = sanitizeInput(finalData[key]) || '';
+            }
+
+            // Stocker la version finale dans localStorage
+            localStorage.setItem('userProfile', JSON.stringify(finalData));
+
+        } catch (err) {
+            console.error("Erreur fetch :", err);
+        }
+    }
+
+    loadUserData();
+
+    // --- Soumission du formulaire ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const formData = new FormData(form);
 
-        // --- SANITIZE ALL INPUTS ---
+        // Sanitize tous les inputs
         for (let [key, value] of formData.entries()) {
             formData.set(key, sanitizeInput(value));
         }
 
-        console.log("FormData envoyé (sanitized) :");
-        for (let [key, value] of formData.entries()) {
-            console.log(key, ":", value);
-        }
-
-        // Validations front
         const email = formData.get("email");
         const pseudo = formData.get("pseudo");
         const password = formData.get("password");
@@ -53,7 +91,6 @@ export function initProfil() {
         if (password && password !== confirmPassword) return safeAlert("Les mots de passe ne correspondent pas");
 
         try {
-            // Envoi vers le back
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
                 method: "POST",
                 body: formData
@@ -65,15 +102,22 @@ export function initProfil() {
                 return safeAlert(result.message || `Erreur serveur : ${res.status}`);
             }
 
-            // Si tout est ok
             safeAlert("Profil mis à jour !");
             console.log("Utilisateur mis à jour :", result.user);
 
-            // Mise à jour des champs du formulaire (sanitized)
+            // Mettre à jour le formulaire et le localStorage
+            const currentData = JSON.parse(localStorage.getItem('userProfile')) || {};
+
             for (const key in result.user) {
                 const input = form.querySelector(`[name="${key}"]`);
-                if (input) input.value = sanitizeInput(result.user[key]) || '';
+                if (input) {
+                    const newValue = sanitizeInput(result.user[key]) || '';
+                    input.value = newValue;
+                    currentData[key] = newValue;
+                }
             }
+
+            localStorage.setItem('userProfile', JSON.stringify(currentData));
 
         } catch (err) {
             console.error("Erreur fetch :", err);
