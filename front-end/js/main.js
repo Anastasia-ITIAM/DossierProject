@@ -5,13 +5,17 @@ import { initSwapAddress } from './swapAddress.js';
 import { initSignUp } from './signUp.js'; 
 import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
+import { initProfilUI } from './profilUI.js';
 import { initHeader } from './header.js';
 
 // Mapping page class -> init function
 const pageInits = {
     'signup-page': initSignUp,
     'signin-page': initSignIn,
-    'profil-page': initProfil,
+    'profil-page': () => {
+        initProfil();
+        initProfilUI();
+    },
 };
 
 // Initialisation de l'utilisateur connecté

@@ -21,23 +21,24 @@ export function initProfil() {
         return;
     }
 
+    const storageKey = `userProfile_${userId}`;
+
     // --- Charger les données utilisateur ---
     async function loadUserData() {
         try {
-            // On tente de récupérer les données locales
-            const localData = JSON.parse(localStorage.getItem('userProfile')) || {};
+            // Récupérer les données du sessionStorage si elles existent
+            const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
 
-            if (Object.keys(localData).length > 0) {
-                // Pré-remplir le formulaire avec les données locales
-                for (const key in localData) {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input) input.value = sanitizeInput(localData[key]) || '';
-                }
+            // Afficher la photo immédiatement si disponible
+            const profileImage = document.getElementById("profileImage");
+            if (profileImage && storedData.photoUrl) {
+                profileImage.src = storedData.photoUrl;
             }
 
-            // Ensuite, on synchronise avec le serveur pour récupérer les dernières données
+            // Récupérer les données serveur
             const res = await fetch(`http://localhost:8081/api/user/${userId}`);
             const result = await res.json();
+
             if (!res.ok || !result.success) {
                 console.error("Impossible de récupérer les données serveur");
                 return;
@@ -45,17 +46,20 @@ export function initProfil() {
 
             const serverData = result.user;
 
-            // Fusionner serveur + local (local prend le dessus si différent)
-            const finalData = { ...serverData, ...localData };
+            // Fusion serveur + local (local prend le dessus)
+            const userData = { ...serverData, ...storedData };
 
-            // Remplir le formulaire
-            for (const key in finalData) {
+            // Remplir le formulaire et la photo
+            for (const key in userData) {
                 const input = form.querySelector(`[name="${key}"]`);
-                if (input) input.value = sanitizeInput(finalData[key]) || '';
+                if (input) input.value = sanitizeInput(userData[key]) || '';
+            }
+            if (profileImage && userData.photoUrl) {
+                profileImage.src = userData.photoUrl;
             }
 
-            // Stocker la version finale dans localStorage
-            localStorage.setItem('userProfile', JSON.stringify(finalData));
+            // Stocker dans sessionStorage
+            sessionStorage.setItem(storageKey, JSON.stringify(userData));
 
         } catch (err) {
             console.error("Erreur fetch :", err);
@@ -70,25 +74,10 @@ export function initProfil() {
 
         const formData = new FormData(form);
 
-        // Sanitize tous les inputs
+        // Sanitize tous les inputs sauf les fichiers
         for (let [key, value] of formData.entries()) {
-            formData.set(key, sanitizeInput(value));
+            if (typeof value === "string") formData.set(key, sanitizeInput(value));
         }
-
-        const email = formData.get("email");
-        const pseudo = formData.get("pseudo");
-        const password = formData.get("password");
-        const confirmPassword = formData.get("confirmPassword");
-
-        const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        const validatePseudo = (pseudo) => /^[a-zA-Z0-9_]{3,20}$/.test(pseudo);
-        const validatePassword = (password) =>
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
-
-        if (!validateEmail(email)) return safeAlert("Email invalide");
-        if (!validatePseudo(pseudo)) return safeAlert("Pseudo invalide (3-20 caractères, lettres, chiffres, underscore)");
-        if (password && !validatePassword(password)) return safeAlert("Mot de passe invalide.");
-        if (password && password !== confirmPassword) return safeAlert("Les mots de passe ne correspondent pas");
 
         try {
             const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
@@ -105,19 +94,24 @@ export function initProfil() {
             safeAlert("Profil mis à jour !");
             console.log("Utilisateur mis à jour :", result.user);
 
-            // Mettre à jour le formulaire et le localStorage
-            const currentData = JSON.parse(localStorage.getItem('userProfile')) || {};
+            // Mettre à jour sessionStorage et formulaire
+            const profileImage = document.getElementById("profileImage");
+            const updatedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
 
             for (const key in result.user) {
+                updatedData[key] = result.user[key];
                 const input = form.querySelector(`[name="${key}"]`);
-                if (input) {
-                    const newValue = sanitizeInput(result.user[key]) || '';
-                    input.value = newValue;
-                    currentData[key] = newValue;
+                if (input && typeof result.user[key] === "string") {
+                    input.value = sanitizeInput(result.user[key]);
                 }
             }
 
-            localStorage.setItem('userProfile', JSON.stringify(currentData));
+            if (profileImage && result.user.photoUrl) {
+                profileImage.src = result.user.photoUrl;
+                updatedData.photoUrl = result.user.photoUrl;
+            }
+
+            sessionStorage.setItem(storageKey, JSON.stringify(updatedData));
 
         } catch (err) {
             console.error("Erreur fetch :", err);
