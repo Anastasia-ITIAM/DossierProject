@@ -4,17 +4,14 @@ export function initProfilUI() {
     const profileRole = document.getElementById("profileRole");
     const profileCredits = document.getElementById("profileCredits");
 
-    // Récupérer l'ID utilisateur global
     const userId = window.currentUserId;
     if (!userId) {
         console.error("Aucun utilisateur connecté !");
         return;
     }
 
-    // Utiliser une clé par utilisateur
     const storageKey = `userProfile_${userId}`;
 
-    // Mapping rôle back → rôle affiché en français
     const roleLabels = {
         role_passenger: "passager",
         role_driver: "chauffeur",
@@ -24,23 +21,26 @@ export function initProfilUI() {
 
     function refreshUI() {
         const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        console.log("Refresh UI avec ces données :", data);
 
-        console.log("Valeur du rôle récupérée :", data.role); // Vérification
+        if (!profileImage) console.warn("Élément #profileImage non trouvé !");
+        if (!profilePseudo) console.warn("Élément #profilePseudo non trouvé !");
+        if (!profileRole) console.warn("Élément #profileRole non trouvé !");
+        if (!profileCredits) console.warn("Élément #profileCredits non trouvé !");
 
         if (profileImage) {
-            profileImage.src = data.photoUrl || ""; // vide si pas d'image
+            console.log("Profile image DOM avant :", profileImage.src);
+            profileImage.src = data.profilePhotoUrl
+                ? `http://localhost:8081${data.profilePhotoUrl}`
+                : "";
+            console.log("Profile image DOM après :", profileImage.src);
         }
-        if (profilePseudo) {
-            profilePseudo.textContent = data.pseudo || "";
-        }
+
+        if (profilePseudo) profilePseudo.textContent = data.pseudo || "";
         if (profileRole) {
-            if (data.role) {
-                const roleKey = data.role.toLowerCase();
-                const roleFr = roleLabels[roleKey] || data.role;
-                profileRole.textContent = roleFr;
-            } else {
-                profileRole.textContent = "";
-            }
+            profileRole.textContent = data.role
+                ? roleLabels[data.role.toLowerCase()] || data.role
+                : "";
         }
         if (profileCredits) {
             profileCredits.textContent =
@@ -51,9 +51,10 @@ export function initProfilUI() {
     // Charger au démarrage
     refreshUI();
 
-    // Écoute les changements du localStorage (si profil.js modifie)
+    // Mettre à jour si sessionStorage change (par un autre onglet)
     window.addEventListener("storage", (event) => {
         if (event.key === storageKey) {
+            console.log("Storage event détecté :", event);
             refreshUI();
         }
     });
