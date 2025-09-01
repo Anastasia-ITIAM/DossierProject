@@ -33,10 +33,9 @@ export function initProfil() {
             console.log("Données stockées existantes :", storedData);
 
             const profileImage = document.getElementById("profileImage");
-
             if (profileImage && storedData.profilePhotoUrl) {
-                console.log("Affichage photo depuis sessionStorage :", storedData.profilePhotoUrl);
                 profileImage.src = `http://localhost:8081${storedData.profilePhotoUrl}`;
+                console.log("Affichage photo depuis sessionStorage :", storedData.profilePhotoUrl);
             }
 
             // Récupérer les données serveur
@@ -50,10 +49,7 @@ export function initProfil() {
             }
 
             const serverData = result.user;
-            console.log("Données serveur :", serverData);
-
-            // Fusion serveur + local
-            const userData = { ...serverData, ...storedData };
+            const userData = { ...storedData, ...serverData }; // fusion serveur + local
 
             // Remplir le formulaire
             for (const key in userData) {
@@ -62,17 +58,15 @@ export function initProfil() {
             }
 
             if (profileImage && userData.profilePhotoUrl) {
-                console.log("Affichage photo depuis serveur :", userData.profilePhotoUrl);
                 profileImage.src = `http://localhost:8081${userData.profilePhotoUrl}`;
-            } else if (!userData.profilePhotoUrl) {
-                console.warn("Pas de profilePhotoUrl dans userData");
-            } else if (!profileImage) {
-                console.warn("Élément #profileImage non trouvé dans le DOM");
             }
 
             // Stocker dans sessionStorage
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
             console.log("SessionStorage mis à jour :", JSON.parse(sessionStorage.getItem(storageKey)));
+
+            // --- Événement pour signaler que le profil est prêt ---
+            window.dispatchEvent(new CustomEvent("profileDataReady", { detail: userData }));
 
         } catch (err) {
             console.error("Erreur fetch :", err);
@@ -86,7 +80,6 @@ export function initProfil() {
         e.preventDefault();
 
         const formData = new FormData(form);
-
         for (let [key, value] of formData.entries()) {
             if (typeof value === "string") formData.set(key, sanitizeInput(value));
         }
@@ -119,13 +112,15 @@ export function initProfil() {
             }
 
             if (profileImage && result.user.profilePhotoUrl) {
-                console.log("Mise à jour photo après submit :", result.user.profilePhotoUrl);
                 profileImage.src = `http://localhost:8081${result.user.profilePhotoUrl}`;
                 updatedData.profilePhotoUrl = result.user.profilePhotoUrl;
             }
 
             sessionStorage.setItem(storageKey, JSON.stringify(updatedData));
             console.log("SessionStorage après submit :", JSON.parse(sessionStorage.getItem(storageKey)));
+
+            // --- Déclenchement de l'événement pour mettre à jour l'UI immédiatement ---
+            window.dispatchEvent(new CustomEvent("profileDataReady", { detail: updatedData }));
 
         } catch (err) {
             console.error("Erreur fetch :", err);

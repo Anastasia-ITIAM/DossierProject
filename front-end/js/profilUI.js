@@ -13,49 +13,70 @@ export function initProfilUI() {
     const storageKey = `userProfile_${userId}`;
 
     const roleLabels = {
-        role_passenger: "passager",
-        role_driver: "chauffeur",
-        role_admin: "administrateur",
-        role_employee: "employé"
+        ROLE_PASSENGER: "passager",
+        ROLE_PASSENGER_DRIVER: "chauffeur et passager",
+        ROLE_ADMIN: "administrateur",
+        ROLE_EMPLOYEE: "employé"
+    };
+
+    const visibleByRole = {
+        ROLE_PASSENGER: ["driver"],
+        ROLE_PASSENGER_DRIVER: [],
+        ROLE_EMPLOYEE: ["employee"],
+        ROLE_ADMIN: ["employee", "admin"]
     };
 
     function refreshUI() {
         const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
         console.log("Refresh UI avec ces données :", data);
-
-        if (!profileImage) console.warn("Élément #profileImage non trouvé !");
-        if (!profilePseudo) console.warn("Élément #profilePseudo non trouvé !");
-        if (!profileRole) console.warn("Élément #profileRole non trouvé !");
-        if (!profileCredits) console.warn("Élément #profileCredits non trouvé !");
+        console.log("Rôle actuel (data.role) :", data.role);
 
         if (profileImage) {
-            console.log("Profile image DOM avant :", profileImage.src);
             profileImage.src = data.profilePhotoUrl
                 ? `http://localhost:8081${data.profilePhotoUrl}`
                 : "";
-            console.log("Profile image DOM après :", profileImage.src);
         }
-
         if (profilePseudo) profilePseudo.textContent = data.pseudo || "";
-        if (profileRole) {
-            profileRole.textContent = data.role
-                ? roleLabels[data.role.toLowerCase()] || data.role
-                : "";
-        }
-        if (profileCredits) {
-            profileCredits.textContent =
-                data.credits !== undefined ? data.credits : "";
-        }
+        if (profileRole) profileRole.textContent = data.role
+            ? roleLabels[data.role] || data.role
+            : "";
+        if (profileCredits) profileCredits.textContent =
+            data.credits !== undefined ? data.credits : "";
+
+        // --- Gestion des boutons ---
+        const buttons = {
+            employee: document.getElementById("btnEmployee"),
+            admin: document.getElementById("btnAdmin"),
+            driver: document.getElementById("btnDriver")
+        };
+        console.log("Buttons détectés :", buttons);
+
+        // masquer tous les boutons d'abord
+        Object.values(buttons).forEach(btn => {
+            if (btn) btn.style.setProperty("display", "none", "important");
+        });
+
+        // afficher uniquement ceux autorisés pour le rôle actuel
+        const allowed = visibleByRole[data.role] || [];
+        allowed.forEach(key => {
+            if (buttons[key]) buttons[key].style.setProperty("display", "inline-block", "important");
+        });
     }
 
-    // Charger au démarrage
+    // Chargement initial
     refreshUI();
 
-    // Mettre à jour si sessionStorage change (par un autre onglet)
+    // Mettre à jour si sessionStorage change dans un autre onglet
     window.addEventListener("storage", (event) => {
         if (event.key === storageKey) {
             console.log("Storage event détecté :", event);
             refreshUI();
         }
+    });
+
+    // Écouter le nouvel événement déclenché après fetch serveur
+    window.addEventListener("profileDataReady", (event) => {
+        console.log("profileDataReady reçu :", event.detail);
+        refreshUI();
     });
 }
