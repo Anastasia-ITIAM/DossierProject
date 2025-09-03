@@ -1,4 +1,5 @@
 import { injectCommon } from './injectCommon.js';
+import { initHeader } from './header.js';
 import { initFormsAnimation } from './formsAnimation.js';
 import { initTogglePassword } from './togglePassword.js';
 import { initSwapAddress } from './swapAddress.js';
@@ -6,7 +7,6 @@ import { initSignUp } from './signUp.js';
 import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
 import { initProfilUI } from './profilUI.js';
-import { initHeader } from './header.js';
 
 // Mapping page class -> init function
 const pageInits = {
@@ -17,6 +17,7 @@ const pageInits = {
         initProfilUI();
     },
 };
+
 
 // Initialisation de l'utilisateur connecté
 async function initUser() {
