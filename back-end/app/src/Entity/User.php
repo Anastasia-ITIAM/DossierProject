@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -72,6 +74,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $status = 'active';
 
+    /**
+     * @var Collection<int, Car>
+     */
+    #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user')]
+    private Collection $cars;
+
+    public function __construct()
+    {
+        $this->cars = new ArrayCollection();
+    }
+
     // === GETTERS & SETTERS ===
 
     public function getId(): ?int { return $this->id; }
@@ -112,5 +125,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void {
         // supprimer les données sensibles temporaires
+    }
+
+    /**
+     * @return Collection<int, Car>
+     */
+    public function getCars(): Collection
+    {
+        return $this->cars;
+    }
+
+    public function addCar(Car $car): static
+    {
+        if (!$this->cars->contains($car)) {
+            $this->cars->add($car);
+            $car->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCar(Car $car): static
+    {
+        if ($this->cars->removeElement($car)) {
+            // set the owning side to null (unless already changed)
+            if ($car->getUser() === $this) {
+                $car->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

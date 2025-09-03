@@ -38,6 +38,10 @@ class Car
     #[ORM\Column]
     private ?int $available_seats = null;
 
+    #[ORM\ManyToOne(inversedBy: 'cars')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -142,6 +146,18 @@ class Car
     public function setAvailableSeats(int $available_seats): static
     {
         $this->available_seats = $available_seats;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
