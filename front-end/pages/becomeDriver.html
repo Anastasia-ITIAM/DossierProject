@@ -21,7 +21,7 @@
     <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
 </head>
 
-<body>
+<body class="driver-page">
     <!-- Header inclus via JS -->
 <div id="header-placeholder"></div>
 
@@ -29,59 +29,59 @@
 <div class="container my-5" style="max-width:600px;">
     <h2 class="text-center mb-4">Devenir Chauffeur 🐊</h2>
 
-        <form>
+        <form id="driverForm">
         <div class="mb-3">
-            <label for="plaque" class="form-label">Plaque d'immatriculation *</label>
-            <input type="text" id="plaque" name="plaque" class="form-control" required>
+            <label for="license_plate" class="form-label">Plaque d'immatriculation *</label>
+            <input type="text" id="license_plate" name="license_plate" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label for="date_immatriculation" class="form-label">Date de première immatriculation *</label>
-            <input type="date" id="date_immatriculation" name="date_immatriculation" class="form-control" required>
+            <label for="registration_date" class="form-label">Date de première immatriculation *</label>
+            <input type="date" id="registration_date" name="registration_date" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label for="marque" class="form-label">Marque *</label>
-            <input type="text" id="marque" name="marque" class="form-control" required>
+            <label for="brand" class="form-label">Marque *</label>
+            <input type="text" id="brand" name="brand" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label for="modele" class="form-label">Modèle *</label>
-            <input type="text" id="modele" name="modele" class="form-control" required>
+            <label for="model" class="form-label">Modèle *</label>
+            <input type="text" id="model" name="model" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label for="couleur" class="form-label">Couleur *</label>
-            <input type="text" id="couleur" name="couleur" class="form-control">
+            <label for="color" class="form-label">Couleur *</label>
+            <input type="text" id="color" name="color" class="form-control">
         </div>
 
         <div class="mb-3">
-            <label for="energie" class="form-label">Motorisation *</label>
-            <input type="text" id="energie" name="energie" class="form-control">
+            <label for="fuel_type" class="form-label">Motorisation *</label>
+            <input type="text" id="fuel_type" name="fuel_type" class="form-control">
         </div>
 
         <div class="mb-3">
-            <label for="places_disponibles" class="form-label">Nombre de places disponibles *</label>
-            <input type="number" id="places_disponibles" name="places_disponibles" class="form-control" min="1" required>
+            <label for="available_seats" class="form-label">Nombre de places disponibles *</label>
+            <input type="number" id="available_seats" name="available_seats" class="form-control" min="1" required>
         </div>
 
         <div class="form-check mb-2">
-            <input type="checkbox" class="form-check-input" id="fumeur" name="fumeur">
-            <label class="form-check-label ms-2" for="fumeur">Accepte les fumeurs</label>
+            <input type="checkbox" class="form-check-input" id="smoker" name="smoker">
+            <label class="form-check-label ms-2" for="smoker">Accepte les fumeurs</label>
         </div>
 
         <div class="form-check mb-4">
-            <input type="checkbox" class="form-check-input" id="animaux_acceptes" name="animaux_acceptes">
-            <label class="form-check-label ms-2" for="animaux_acceptes">Accepte les animaux</label>
+            <input type="checkbox" class="form-check-input" id="pets_allowed" name="pets_allowed">
+            <label class="form-check-label ms-2" for="pets_allowed">Accepte les animaux</label>
         </div>
 
         <div class="mb-3">
-            <label for="preferences_personnalisees" class="form-label">Préférences personnalisées</label>
-            <textarea id="preferences_personnalisees" name="preferences_personnalisees" class="form-control" rows="3"></textarea>
+            <label for="custom_preferences" class="form-label">Préférences personnalisées</label>
+            <textarea id="custom_preferences" name="custom_preferences" class="form-control" rows="3"></textarea>
         </div>
 
         <p class="text-center mt-5">
-        <a href="profil.html" class="btn custom-btn">Devenir chauffeur</a>
+        <button type="submit" class="btn custom-btn">Devenir chauffeur</button>
         </p>
         </form>
 

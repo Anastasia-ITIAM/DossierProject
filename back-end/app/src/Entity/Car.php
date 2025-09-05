@@ -15,10 +15,10 @@ class Car
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $license_plate = null;
+    private ?string $licensePlate = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $registration_date = null;
+    private ?\DateTime $registrationDate = null;
 
     #[ORM\Column(length: 50)]
     private ?string $model = null;
@@ -30,24 +30,33 @@ class Car
     private ?string $color = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $fuel_type = null;
+    private ?string $fuelType = null;
 
     #[ORM\Column]
-    private ?int $available_seats = null;
+    private ?int $availableSeats = null;
 
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    // === GETTERS & SETTERS ===
+    #[ORM\Column(type: 'boolean')]
+    private bool $smoker = false;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $petsAllowed = false;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $customPreferences = null;
+
+    // === Getters & Setters ===
 
     public function getId(): ?int { return $this->id; }
 
-    public function getLicensePlate(): ?string { return $this->license_plate; }
-    public function setLicensePlate(string $license_plate): static { $this->license_plate = $license_plate; return $this; }
+    public function getLicensePlate(): ?string { return $this->licensePlate; }
+    public function setLicensePlate(string $licensePlate): static { $this->licensePlate = $licensePlate; return $this; }
 
-    public function getRegistrationDate(): ?\DateTime { return $this->registration_date; }
-    public function setRegistrationDate(\DateTime $registration_date): static { $this->registration_date = $registration_date; return $this; }
+    public function getRegistrationDate(): ?\DateTime { return $this->registrationDate; }
+    public function setRegistrationDate(\DateTime $registrationDate): static { $this->registrationDate = $registrationDate; return $this; }
 
     public function getModel(): ?string { return $this->model; }
     public function setModel(string $model): static { $this->model = $model; return $this; }
@@ -58,12 +67,21 @@ class Car
     public function getColor(): ?string { return $this->color; }
     public function setColor(string $color): static { $this->color = $color; return $this; }
 
-    public function getFuelType(): ?string { return $this->fuel_type; }
-    public function setFuelType(string $fuel_type): static { $this->fuel_type = $fuel_type; return $this; }
+    public function getFuelType(): ?string { return $this->fuelType; }
+    public function setFuelType(string $fuelType): static { $this->fuelType = $fuelType; return $this; }
 
-    public function getAvailableSeats(): ?int { return $this->available_seats; }
-    public function setAvailableSeats(int $available_seats): static { $this->available_seats = $available_seats; return $this; }
+    public function getAvailableSeats(): ?int { return $this->availableSeats; }
+    public function setAvailableSeats(int $availableSeats): static { $this->availableSeats = $availableSeats; return $this; }
 
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): static { $this->user = $user; return $this; }
+
+    public function isSmoker(): bool { return $this->smoker; }
+    public function setSmoker(bool $smoker): static { $this->smoker = $smoker; return $this; }
+
+    public function isPetsAllowed(): bool { return $this->petsAllowed; }
+    public function setPetsAllowed(bool $petsAllowed): static { $this->petsAllowed = $petsAllowed; return $this; }
+
+    public function getCustomPreferences(): ?string { return $this->customPreferences; }
+    public function setCustomPreferences(?string $customPreferences): static { $this->customPreferences = $customPreferences; return $this; }
 }
