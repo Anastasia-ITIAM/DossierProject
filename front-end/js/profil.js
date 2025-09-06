@@ -1,6 +1,6 @@
 export function initProfil() {
 
-    // --- Utilitaires sécurité ---
+    // Utilitaires sécurité
     function sanitizeInput(input) {
         if (typeof input !== "string") return input;
         return input.replace(/[<>]/g, "");
@@ -26,7 +26,7 @@ export function initProfil() {
 
     const storageKey = `userProfile_${userId}`;
 
-    // --- Charger les données utilisateur ---
+    // Charger les données utilisateur
     async function loadUserData() {
         try {
             const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
@@ -65,7 +65,7 @@ export function initProfil() {
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
             console.log("SessionStorage mis à jour :", JSON.parse(sessionStorage.getItem(storageKey)));
 
-            // --- Événement pour signaler que le profil est prêt ---
+            // Événement pour signaler que le profil est prêt
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: userData }));
 
         } catch (err) {
@@ -75,7 +75,7 @@ export function initProfil() {
 
     loadUserData();
 
-    // --- Soumission du formulaire ---
+    // Soumission du formulaire
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -119,7 +119,7 @@ export function initProfil() {
             sessionStorage.setItem(storageKey, JSON.stringify(updatedData));
             console.log("SessionStorage après submit :", JSON.parse(sessionStorage.getItem(storageKey)));
 
-            // --- Déclenchement de l'événement pour mettre à jour l'UI immédiatement ---
+            // Déclenchement de l'événement pour mettre à jour l'UI immédiatement
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: updatedData }));
 
         } catch (err) {

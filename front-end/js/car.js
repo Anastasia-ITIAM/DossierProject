@@ -5,11 +5,21 @@ import { authFetch } from './signIn.js';
 export function initCar() {
     const form = document.querySelector("#driverForm"); 
     if (!form) {
-        console.warn("⚠️ Aucun formulaire trouvé avec id #driverForm");
+        console.warn("Aucun formulaire trouvé avec id #driverForm");
         return;
     }
     
-    console.log("✅ driverForm détecté");
+    console.log("driverForm détecté");
+
+    // Récupération de l'ID utilisateur depuis window
+    const userId = window.currentUserId;
+    if (!userId) {
+        console.error("Aucun utilisateur connecté !");
+        return;
+    }
+
+    // Clé pour stocker le profil dans sessionStorage
+    const storageKey = `userProfile_${userId}`;
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -18,7 +28,7 @@ export function initCar() {
         // Récupérer les données du formulaire
         const formData = new FormData(form);
 
-        // Transformer en objet JSON pour l'API (⚠️ clés en anglais comme en BDD)
+        // Construire l'objet JSON à envoyer au backend
         const data = {
             license_plate: formData.get("license_plate"),
             registration_date: formData.get("registration_date"),
@@ -32,7 +42,7 @@ export function initCar() {
             custom_preferences: formData.get("custom_preferences") || ""
         };
 
-        console.log("📤 Données préparées pour envoi :", data);
+        console.log("Données préparées pour envoi :", data);
 
         try {
             console.log("⏳ Envoi vers backend : http://localhost:8081/api/car");
@@ -41,26 +51,33 @@ export function initCar() {
                 body: JSON.stringify(data)
             });
 
-            console.log("📥 Réponse brute :", response);
-
             const result = await response.json();
-            console.log("✅ Réponse JSON du backend :", result);
+            console.log("Réponse JSON du backend :", result);
 
             if (response.ok && result.success) {
-                console.log("🎉 Voiture enregistrée en BDD :", result.car);
+                console.log("Voiture enregistrée en BDD :", result.car);
                 alert("Voiture ajoutée avec succès ! Vous êtes maintenant chauffeur·euse.");
 
-                // Stocker la voiture en sessionStorage
-                sessionStorage.setItem("currentCar", JSON.stringify(result.car));
+                // --- Mise à jour du rôle dans sessionStorage ---
+                // On récupère les données existantes du profil
+                const currentUserData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+                // On modifie le rôle
+                currentUserData.role = "ROLE_PASSENGER_DRIVER";
+                // On enregistre de nouveau dans sessionStorage
+                sessionStorage.setItem(storageKey, JSON.stringify(currentUserData));
 
-                // Redirection
+                // --- Déclenchement d'un événement pour que initProfilUI() mette à jour les boutons ---
+                window.dispatchEvent(new Event("profileDataReady"));
+
+                // --- Redirection vers la page profil ---
                 window.location.href = "/pages/profil.html";
+
             } else {
-                console.error("❌ Erreur API :", result);
+                console.error("Erreur API :", result);
                 alert("Erreur : " + (result.message || "Impossible d'ajouter la voiture."));
             }
         } catch (err) {
-            console.error("💥 Exception JS lors de l'envoi :", err);
+            console.error("Exception JS lors de l'envoi :", err);
             alert("Erreur serveur ou token invalide. Réessayez plus tard.");
         }
     });

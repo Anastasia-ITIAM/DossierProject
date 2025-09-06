@@ -1,4 +1,5 @@
 export function initProfilUI() {
+
     const profileImage = document.getElementById("profileImage");
     const profilePseudo = document.getElementById("profilePseudo");
     const profileRole = document.getElementById("profileRole");
@@ -32,7 +33,7 @@ export function initProfilUI() {
         driver: document.getElementById("btnDriver")
     };
 
-    // --- Bloquer l'accès à devenir chauffeur si profil incomplet ---
+    // Bloquer l'accès à devenir chauffeur si profil incomplet
     if (buttons.driver) {
         buttons.driver.addEventListener("click", (event) => {
             const requiredFields = [
@@ -53,7 +54,7 @@ export function initProfilUI() {
 
             if (incomplete) {
                 event.preventDefault();
-                alert("Vous devez compléter tous les champs de votre profil avant de devenir chauffeur !");
+                alert("Vous devez compléter tous les champs de votre profil avant de devenir chauffeur·euse!");
                 window.location.href = "profil.html"; 
                 return false;
             }
@@ -70,12 +71,12 @@ export function initProfilUI() {
         if (profileRole) profileRole.textContent = data.role ? roleLabels[data.role] || data.role : "";
         if (profileCredits) profileCredits.textContent = data.credits !== undefined ? data.credits : "";
 
-        // masquer tous les boutons d'abord
+        // Masquer tous les boutons d'abord
         Object.values(buttons).forEach(btn => {
             if (btn) btn.style.setProperty("display", "none", "important");
         });
 
-        // afficher uniquement ceux autorisés pour le rôle actuel
+        // Afficher uniquement ceux autorisés pour le rôle actuel
         const allowed = visibleByRole[data.role] || [];
         allowed.forEach(key => {
             if (buttons[key]) buttons[key].style.setProperty("display", "inline-block", "important");

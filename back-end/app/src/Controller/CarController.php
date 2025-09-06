@@ -20,7 +20,7 @@ class CarController extends AbstractController
         $this->em = $em;
     }
 
-    // === AJOUTER UNE VOITURE ===
+    // AJOUTER UNE VOITURE
     #[Route('', name: 'add_car', methods: ['POST'])]
     public function add(Request $request, ValidatorInterface $validator): JsonResponse
     {
@@ -35,6 +35,8 @@ class CarController extends AbstractController
                     'message' => 'Utilisateur non connecté.'
                 ], 401);
             }
+            // Si l’utilisateur existe, on peut changer son rôle
+            $user->setRole('ROLE_PASSENGER_DRIVER');
 
             // On récupère les données envoyées par le front en JSON
             $data = json_decode($request->getContent(), true);
@@ -57,7 +59,7 @@ class CarController extends AbstractController
             $car->setFuelType($data['fuel_type'] ?? '');
             $car->setAvailableSeats((int)($data['available_seats'] ?? 0));
 
-            // ✅ Champs supplémentaires (à ajouter dans l’entité Car)
+            // Champs supplémentaires (à ajouter dans l’entité Car)
             $car->setSmoker((bool)($data['smoker'] ?? false));
             $car->setPetsAllowed((bool)($data['pets_allowed'] ?? false));
             $car->setCustomPreferences($data['custom_preferences'] ?? null);

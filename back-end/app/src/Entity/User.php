@@ -85,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->cars = new ArrayCollection();
     }
 
-    // === GETTERS & SETTERS ===
+    // GETTERS & SETTERS
 
     public function getId(): ?int { return $this->id; }
     public function getPseudo(): ?string { return $this->pseudo; }
@@ -106,8 +106,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static { $this->password = $password; return $this; }
     public function getCredits(): ?int { return $this->credits; }
     public function setCredits(int $credits): static { $this->credits = $credits; return $this; }
-    public function getRole(): ?string { return $this->role; }
-    public function setRole(string $role): static { $this->role = $role; return $this; }
+    public function getRole(): ?string{return $this->role;}
+    public function setRole(string $role): static{$this->role = $role;return $this;}
     public function getCreatedAt(): ?\DateTime { return $this->createdAt; }
     public function setCreatedAt(\DateTime $createdAt): static { $this->createdAt = $createdAt; return $this; }
     public function getProfilePhotoUrl(): ?string { return $this->profilePhotoUrl; }
@@ -115,12 +115,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
-    // === MÉTHODES POUR SYMFONY SECURITY ===
+    // MÉTHODES POUR SYMFONY SECURITY
 
     public function getUserIdentifier(): string { return (string)$this->email; }
 
     public function getRoles(): array {
-        return array_unique([$this->role ?? 'ROLE_PASSENGER']);
+        return [$this->role ?? 'ROLE_PASSENGER'];
     }
 
     public function eraseCredentials(): void {
@@ -148,7 +148,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeCar(Car $car): static
     {
         if ($this->cars->removeElement($car)) {
-            // set the owning side to null (unless already changed)
             if ($car->getUser() === $this) {
                 $car->setUser(null);
             }
