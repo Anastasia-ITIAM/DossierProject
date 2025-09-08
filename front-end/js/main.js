@@ -7,13 +7,13 @@ import { initSignUp } from './signUp.js';
 import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
 import { initProfilUI } from './profilUI.js';
-import { initCarPage } from './car.js'; // <- on importe la nouvelle fonction
+import { initCarPage } from './car.js';
 
 // Mapping page class -> init function
 const pageInits = {
     'signup-page': initSignUp,
     'signin-page': initSignIn,
-    'driver-page': initCarPage, // <- maintenant initCarPage pour afficher aussi les voitures
+    'driver-page': initCarPage, 
     'profil-page': () => {
         initProfil();
         initProfilUI();
@@ -52,13 +52,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const bodyClass = document.body.className.split(' ');
         bodyClass.forEach(cls => {
             if (pageInits[cls]) {
-                console.log(`📌 Initialisation de la page : ${cls}`);
+                console.log(`Initialisation de la page : ${cls}`);
                 pageInits[cls]();
             }
         });
 
-        console.log("✅ Initialisation JS terminée !");
+        console.log("Initialisation JS terminée !");
     } catch (err) {
-        console.error("❌ Erreur lors de l'initialisation principale :", err);
+        console.error("Erreur lors de l'initialisation principale :", err);
     }
 });
