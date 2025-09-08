@@ -49,8 +49,6 @@ class CarController extends AbstractController
             $car->setColor($data['color'] ?? '');
             $car->setFuelType($data['fuel_type'] ?? '');
             $car->setAvailableSeats((int)($data['available_seats'] ?? 0));
-            $car->setSmoker((bool)($data['smoker'] ?? false));
-            $car->setPetsAllowed((bool)($data['pets_allowed'] ?? false));
             $car->setCustomPreferences($data['custom_preferences'] ?? null);
             $car->setUser($user);
 
@@ -77,8 +75,6 @@ class CarController extends AbstractController
                     'color' => $car->getColor(),
                     'fuel_type' => $car->getFuelType(),
                     'available_seats' => $car->getAvailableSeats(),
-                    'smoker' => $car->isSmoker(),
-                    'pets_allowed' => $car->isPetsAllowed(),
                     'custom_preferences' => $car->getCustomPreferences(),
                 ],
                 'user_id' => $user->getId(),
@@ -120,8 +116,6 @@ public function myCars(): JsonResponse
             // ✅ fuelType exposé correctement
             'fuel_type' => $car->getFuelType(),
             'available_seats' => $car->getAvailableSeats(),
-            'smoker' => $car->isSmoker(),
-            'pets_allowed' => $car->isPetsAllowed(),
             'custom_preferences' => $car->getCustomPreferences(),
         ];
     })->toArray();

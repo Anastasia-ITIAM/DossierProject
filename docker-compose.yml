@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # FRONT-END
   frontend:
@@ -48,9 +46,9 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: testdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
+      MYSQL_DATABASE: ecoride
+      MYSQL_USER: anastasia
+      MYSQL_PASSWORD: OneLove24!
     ports:
       - "3306:3306"
     volumes:
@@ -75,6 +73,7 @@ services:
 
 networks:
   app:
+    driver: bridge
 
 volumes:
   db_data:

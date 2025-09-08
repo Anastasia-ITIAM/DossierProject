@@ -35,18 +35,12 @@ class Car
     #[ORM\Column]
     private ?int $availableSeats = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $customPreferences = null;
+
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
-
-    #[ORM\Column(type: 'boolean')]
-    private bool $smoker = false;
-
-    #[ORM\Column(type: 'boolean')]
-    private bool $petsAllowed = false;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $customPreferences = null;
 
     // === Getters & Setters ===
 
@@ -75,12 +69,6 @@ class Car
 
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): static { $this->user = $user; return $this; }
-
-    public function isSmoker(): bool { return $this->smoker; }
-    public function setSmoker(bool $smoker): static { $this->smoker = $smoker; return $this; }
-
-    public function isPetsAllowed(): bool { return $this->petsAllowed; }
-    public function setPetsAllowed(bool $petsAllowed): static { $this->petsAllowed = $petsAllowed; return $this; }
 
     public function getCustomPreferences(): ?string { return $this->customPreferences; }
     public function setCustomPreferences(?string $customPreferences): static { $this->customPreferences = $customPreferences; return $this; }
