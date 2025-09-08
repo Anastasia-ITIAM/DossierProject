@@ -18,7 +18,7 @@ class Trip
     private ?int $car_id = null;
 
     #[ORM\Column]
-    private ?int $driver_id = null;
+    private ?int $user_id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $departure_address = null;
@@ -74,14 +74,14 @@ class Trip
         return $this;
     }
 
-    public function getDriverId(): ?int
+    public function getUserId(): ?int
     {
-        return $this->driver_id;
+        return $this->user_id;
     }
 
-    public function setDriverId(int $driver_id): static
+    public function setUserId(int $user_id): static
     {
-        $this->driver_id = $driver_id;
+        $this->user_id = $user_id;
 
         return $this;
     }

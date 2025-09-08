@@ -8,12 +8,15 @@ import { initSignIn, getMe } from './signIn.js';
 import { initProfil } from './profil.js';
 import { initProfilUI } from './profilUI.js';
 import { initCarPage } from './car.js';
+import { initPublishTrip } from './publishTrip.js';
+
 
 // Mapping page class -> init function
 const pageInits = {
     'signup-page': initSignUp,
     'signin-page': initSignIn,
     'driver-page': initCarPage, 
+    'publishTrip-page': initPublishTrip,
     'profil-page': () => {
         initProfil();
         initProfilUI();

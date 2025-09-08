@@ -21,7 +21,7 @@
     <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
 </head>
 
-<body>
+<body class="publishTrip-page">
 <!-- Header inclus via JS -->
 <div id="header-placeholder"></div>
 
@@ -29,7 +29,7 @@
         <h2 class="text-center mb-4">Publier un trajet ♻️</h2>
 
     
-        <form novalidate>
+        <form id="publish_trip">
         <div class="mb-3">
             <label for="adresse_depart" class="form-label">Ville de départ *</label>
             <input type="text" name="adresse_depart" id="adresse_depart" class="form-control" required value="">
@@ -78,16 +78,11 @@
             <label for="vehicule_id" class="form-label">Choisir un véhicule *</label>
             <select name="vehicule_id" id="vehicule_id" class="form-select" required>
             <option value="">-- Sélectionner --</option>
-            <option value="1">Toyota Corolla (ABC-123)</option>
-            <option value="2">Renault Clio (XYZ-456)</option>
             </select>
-            <small class="form-text text-muted">
-            Aucun véhicule ? <a class="eco-link" href="#">Ajouter un nouveau véhicule</a>.
-            </small>
         </div>
 
         <div class="text-center mt-4">
-            <a href="myTrips.html"btn custom-btn">Publier ce trajet</a>
+        <button type="submit" class="btn custom-btn">Publier ce trajet</button>
         </div>
         </form>
     </div>
