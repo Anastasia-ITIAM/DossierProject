@@ -1,4 +1,3 @@
-// car.js (version simplifiée sans smoker et pets_allowed)
 console.log("initCar chargé !");
 
 import { authFetch } from './signIn.js';
@@ -160,24 +159,43 @@ prefsDiv.appendChild(prefs);
 form.appendChild(prefsDiv);
 
 
-        // delete button
-        const delDiv = document.createElement('div'); delDiv.className='text-center mb-4 mt-3';
-        const delBtn = document.createElement('button');
-        delBtn.type='button';
-        delBtn.className='btn btn-danger';
-        delBtn.textContent='Supprimer';
-        delBtn.addEventListener('click', async () => {
-            if (!confirm('Voulez-vous vraiment supprimer ce véhicule ?')) return;
-            try {
-                if (!car.id) return alert('ID absent');
-                const resp = await authFetch(`http://localhost:8081/api/car/delete/${car.id}`, { method: 'DELETE' });
-                const result = await resp.json();
-                if (resp.ok && result.success) {
-                    renderCars(await fetchMyCars());
-                } else alert('Erreur suppression: ' + (result.message || JSON.stringify(result)));
-            } catch(err) { alert('Erreur réseau'); console.error(err); }
+    // delete button
+const delDiv = document.createElement('div');
+delDiv.className = 'text-center mb-4 mt-3';
+
+const delBtn = document.createElement('button');
+delBtn.type = 'button';
+delBtn.className = 'btn btn-danger';
+delBtn.textContent = 'Supprimer';
+
+delBtn.addEventListener('click', async () => {
+    if (!confirm('Voulez-vous vraiment supprimer ce véhicule ?')) return;
+
+    if (!car.id) return alert('ID absent');
+
+    try {
+        const resp = await authFetch(`http://localhost:8081/api/car/delete/${car.id}`, {
+            method: 'DELETE'
         });
-        delDiv.appendChild(delBtn);
+
+        const result = await resp.json();
+
+        if (resp.ok && result.success) {
+            // 🚀 Actualiser la liste des voitures
+            renderCars(await fetchMyCars());
+            alert('La voiture a été supprimée avec succès !');
+        } else {
+            alert('Erreur suppression : ' + (result.message || JSON.stringify(result)));
+        }
+    } catch (err) {
+        alert('Erreur réseau');
+        console.error(err);
+    }
+});
+
+delDiv.appendChild(delBtn);
+form.appendChild(delDiv);
+
 
         // assemble
 form.appendChild(row1);
@@ -219,10 +237,17 @@ export function initCar() {
                 currentUserData.role='ROLE_PASSENGER_DRIVER';
                 sessionStorage.setItem(storageKey, JSON.stringify(currentUserData));
                 window.dispatchEvent(new Event('profileDataReady'));
-                renderCars(await fetchMyCars());
-                form.reset();
-            } else alert('Erreur : ' + (result.message || JSON.stringify(result)));
-        } catch(err){ alert('Erreur réseau'); console.error(err);}
+
+                alert('La voiture a été ajoutée avec succès !');
+                window.location.href = '/pages/profil.html'; 
+
+            } else {
+                alert('Erreur : ' + (result.message || JSON.stringify(result)));
+            }
+        } catch(err){
+            alert('Erreur réseau');
+            console.error(err);
+        }
     });
 }
 

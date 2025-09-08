@@ -36,7 +36,7 @@ async function initUser() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        console.log("🔹 Début de l'initialisation principale");
+        console.log("Début de l'initialisation principale");
 
         await injectCommon();       // Injecte header/footer/modals
         await initUser();           // Initialise window.currentUserId
