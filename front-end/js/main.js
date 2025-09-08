@@ -7,20 +7,18 @@ import { initSignUp } from './signUp.js';
 import { initSignIn, getMe } from './signIn.js'; 
 import { initProfil } from './profil.js';
 import { initProfilUI } from './profilUI.js';
-import { initCar } from './car.js';
-
+import { initCarPage } from './car.js'; // <- on importe la nouvelle fonction
 
 // Mapping page class -> init function
 const pageInits = {
     'signup-page': initSignUp,
     'signin-page': initSignIn,
-    'driver-page': initCar,
+    'driver-page': initCarPage, // <- maintenant initCarPage pour afficher aussi les voitures
     'profil-page': () => {
         initProfil();
         initProfilUI();
     },
 };
-
 
 // Initialisation de l'utilisateur connecté
 async function initUser() {
@@ -38,9 +36,11 @@ async function initUser() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        await injectCommon();
-        await initUser();
-        await initHeader();
+        console.log("🔹 Début de l'initialisation principale");
+
+        await injectCommon();       // Injecte header/footer/modals
+        await initUser();           // Initialise window.currentUserId
+        await initHeader();         // Initialise le header avec l'utilisateur
 
         // Initialisations globales (animations, toggle, swap)
         initFormsAnimation();
@@ -49,13 +49,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         initSwapAddress('depart', 'arrivee', 'swapBtn');
 
         // Initialisation spécifique à la page
-        const bodyClass = document.body.classList.value.split(' ');
+        const bodyClass = document.body.className.split(' ');
         bodyClass.forEach(cls => {
-            if (pageInits[cls]) pageInits[cls]();
+            if (pageInits[cls]) {
+                console.log(`📌 Initialisation de la page : ${cls}`);
+                pageInits[cls]();
+            }
         });
 
-        console.log("Initialisation JS terminée !");
+        console.log("✅ Initialisation JS terminée !");
     } catch (err) {
-        console.error("Erreur lors de l'initialisation principale :", err);
+        console.error("❌ Erreur lors de l'initialisation principale :", err);
     }
 });

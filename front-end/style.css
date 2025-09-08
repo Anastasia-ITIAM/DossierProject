@@ -423,6 +423,18 @@ footer .nav-link:hover {
 }
 
 
+/* Page mes voitures */
+#cars-list,
+#cars-list .card,
+#cars-list .card input,
+#cars-list .card label,
+#cars-list .card textarea {
+    color: #000 !important;        /* texte noir */
+    background-color: #f8f9fa;     /* fond clair pour visualiser */
+}
+
+
+
 
 
 
