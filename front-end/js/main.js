@@ -9,6 +9,8 @@ import { initProfil } from './profil.js';
 import { initProfilUI } from './profilUI.js';
 import { initCarPage } from './car.js';
 import { initPublishTrip } from './publishTrip.js';
+import { initMyTrips } from './myTrips.js';
+
 
 
 // Mapping page class -> init function
@@ -17,6 +19,7 @@ const pageInits = {
     'signin-page': initSignIn,
     'driver-page': initCarPage, 
     'publishTrip-page': initPublishTrip,
+    'trips-page': initMyTrips,
     'profil-page': () => {
         initProfil();
         initProfilUI();

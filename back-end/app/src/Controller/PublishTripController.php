@@ -19,16 +19,15 @@ class PublishTripController extends AbstractController
         $this->em = $em;
     }
 
-    // Publier un nouveau trajet
+    // --------------------
+    // Ajouter un trajet
+    // --------------------
     #[Route('/add', name: 'publish_trip', methods: ['POST'])]
-    public function publish(Request $request): JsonResponse
+    public function add(Request $request): JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Utilisateur non connecté.'
-            ], 401);
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -61,33 +60,62 @@ class PublishTripController extends AbstractController
         ]);
     }
 
+    // --------------------
+    // Lister les trajets de l'utilisateur
+    // --------------------
+    #[Route('/list', name: 'list_trips', methods: ['GET'])]
+    public function list(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
+        }
+
+        $trips = $this->em->getRepository(Trip::class)->findBy(
+            ['user_id' => $user->getId()],
+            ['departure_date' => 'ASC', 'departure_time' => 'ASC']
+        );
+
+        $result = array_map(function (Trip $trip) {
+            return [
+                'id' => $trip->getId(),
+                'car_id' => $trip->getCarId(),
+                'departure_address' => $trip->getDepartureAddress(),
+                'arrival_address' => $trip->getArrivalAddress(),
+                'departure_date' => $trip->getDepartureDate()->format('Y-m-d'),
+                'departure_time' => $trip->getDepartureTime()->format('H:i'),
+                'arrival_time' => $trip->getArrivalTime()->format('H:i'),
+                'available_seats' => $trip->getAvailableSeats(),
+                'eco_friendly' => $trip->isEcoFriendly(),
+                'status' => $trip->getStatus(),
+                'finished' => $trip->isFinished(),
+                'participant_validation' => $trip->isParticipantValidation(),
+            ];
+        }, $trips);
+
+        return new JsonResponse(['success' => true, 'trips' => $result]);
+    }
+
+    // --------------------
     // Supprimer un trajet
+    // --------------------
     #[Route('/delete/{id}', name: 'delete_trip', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $user = $this->getUser();
         if (!$user) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Utilisateur non connecté.'
-            ], 401);
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
         }
 
         $trip = $this->em->getRepository(Trip::class)->find($id);
 
         if (!$trip || $trip->getUserId() !== $user->getId()) {
-            return new JsonResponse([
-                'success' => false,
-                'message' => 'Trajet introuvable ou accès refusé.'
-            ], 404);
+            return new JsonResponse(['success' => false, 'message' => 'Trajet introuvable ou accès refusé.'], 404);
         }
 
         $this->em->remove($trip);
         $this->em->flush();
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Trajet supprimé avec succès.'
-        ]);
+        return new JsonResponse(['success' => true, 'message' => 'Trajet supprimé avec succès.']);
     }
 }
