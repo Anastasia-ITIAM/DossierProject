@@ -5,9 +5,14 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
+// Ajout de l'entité Car
+use App\Entity\Car;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -72,17 +77,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $status = 'active';
 
-   
-    #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $cars;
-    
 
-   public function __construct()
+    public function __construct()
     {
         $this->cars = new ArrayCollection();
     }
 
-    // GETTERS & SETTERS
+    // ---------------- GETTERS & SETTERS ----------------
 
     public function getId(): ?int { return $this->id; }
     public function getPseudo(): ?string { return $this->pseudo; }
@@ -112,16 +115,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
-    // MÉTHODES POUR SYMFONY SECURITY
+    // ---------------- SECURITY METHODS ----------------
     public function getUserIdentifier(): string { return (string)$this->email; }
     public function getRoles(): array { return [$this->role ?? 'ROLE_PASSENGER']; }
     public function eraseCredentials(): void {}
 
-   
-    public function getCars(): Collection
-    {
-        return $this->cars;
-    }
+    // ---------------- CARS RELATION ----------------
+    public function getCars(): Collection { return $this->cars; }
 
     public function addCar(Car $car): static
     {
@@ -129,7 +129,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->cars->add($car);
             $car->setUser($this);
         }
-
         return $this;
     }
 
@@ -140,8 +139,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $car->setUser(null);
             }
         }
-
         return $this;
     }
-    
 }

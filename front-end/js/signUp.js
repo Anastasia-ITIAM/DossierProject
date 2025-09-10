@@ -5,7 +5,6 @@ function sanitizeInput(input) {
     return input.replace(/[<>]/g, ""); // supprime balises HTML
 }
 
-// Alert sécurisée : ne permet pas d’exécuter du HTML ou du JS injecté
 function safeAlert(message) {
     const div = document.createElement('div');
     div.textContent = Array.isArray(message) ? message.join('\n') : message;
@@ -35,11 +34,10 @@ export function initSignUp() {
 
         const email = sanitizeInput(form.email.value.trim());
         const pseudo = sanitizeInput(form.pseudo.value.trim());
-        const password = form.motdepasse.value;
-        const confirmPassword = form.confirmer_motdepasse.value;
+        const password = form.password.value;
+        const confirmPassword = form.confirmPassword.value;
         const conditionsChecked = form.conditions.checked;
 
-        // Validation front
         if (!validateEmail(email)) return safeAlert('Email invalide');
         if (!validatePseudo(pseudo)) return safeAlert('Pseudo invalide (3-20 caractères)');
         if (!validatePassword(password)) return safeAlert('Mot de passe invalide. Il doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.');
@@ -57,10 +55,17 @@ export function initSignUp() {
                 body: JSON.stringify(data)
             });
 
-            const result = await response.json();
+            // Sécurisation : lire d'abord en texte
+            const text = await response.text();
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch {
+                console.error('Backend a renvoyé autre chose que du JSON :', text);
+                return safeAlert('Erreur serveur inattendue');
+            }
 
             if (response.ok && result.success) {
-                // Login automatique après inscription
                 const loginResult = await login(email, password);
 
                 if (loginResult.status === 'ok') {
@@ -71,7 +76,6 @@ export function initSignUp() {
                     window.location.href = '/pages/signIn.html';
                 }
             } else {
-                // Gestion des erreurs renvoyées par Symfony
                 safeAlert(result.message || 'Erreur serveur');
             }
         } catch (err) {
