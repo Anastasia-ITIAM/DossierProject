@@ -24,29 +24,32 @@ export async function initMyTrips() {
         passesTab.innerHTML = '';
 
         result.trips.forEach(trip => {
-            const depDateTime = new Date(`${trip.departure_date}T${trip.departure_time}`);
+            const depDateTime = new Date(`${trip.departure_date}T${trip.departure_time || '00:00'}`);
             const isPast = depDateTime < now;
             const isDriver = trip.user_id === window.currentUserId;
 
-            // Créer la carte
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'col-md-6 mb-4';
-            cardDiv.innerHTML = `
-                <div class="card eco-box shadow-sm p-3">
-                    <h5 class="card-title">Trajet vers ${trip.arrival_address}</h5>
-                    <p class="card-text">
-                        <strong>Départ :</strong> ${trip.departure_address}<br>
-                        <strong>Arrivée :</strong> ${trip.arrival_address}<br>
-                        <strong>Date :</strong> ${trip.departure_date} à ${trip.departure_time}<br>
-                        <strong>Conducteur :</strong> ${isDriver ? 'Vous' : 'Autre'}<br>
-                        <strong>Places :</strong> ${trip.available_seats}<br>
-                        <strong style="color:red;">Rôle :</strong> ${isDriver ? 'Chauffeur' : 'Passager'}
-                    </p>
-                    <div class="text-center">
-                        <a href="#" class="btn custom-btn">Voir les détails</a>
-                    </div>
-                </div>
-            `;
+            /// Créer la carte
+const cardDiv = document.createElement('div');
+cardDiv.className = 'col-md-6 mb-4';
+cardDiv.innerHTML = `
+    <div class="card eco-box shadow-sm p-3">
+        <h5 class="card-title">
+            Trajet vers ${trip.arrival_address}
+        </h5>
+        <p class="card-text">
+            <strong>Départ :</strong> ${trip.departure_address}<br>
+            <strong>Arrivée :</strong> ${trip.arrival_address}<br>
+            <strong>Date :</strong> ${trip.departure_date} à ${trip.departure_time}<br>
+            <strong>Places :</strong> ${trip.available_seats}<br>
+            <strong style="color:red;">Rôle :</strong> ${isDriver ? 'Chauffeur' : 'Passager'}
+            ${trip.eco_friendly ? '<div class="eco-label text-center">🌱 EcoRide</div>' : ''}
+        </p>
+        <div class="text-center">
+            <a href="#" class="btn custom-btn">Voir les détails</a>
+        </div>
+    </div>
+`;
+
 
             // Classer dans les onglets
             if (isPast) passesTab.appendChild(cardDiv);

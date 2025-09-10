@@ -38,6 +38,9 @@ class Trip
     #[ORM\Column]
     private ?int $available_seats = null;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private ?int $price = 0;
+
     #[ORM\Column]
     private ?bool $eco_friendly = null;
 
@@ -155,6 +158,17 @@ class Trip
     {
         $this->available_seats = $available_seats;
 
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): static
+    {
+        $this->price = $price;
         return $this;
     }
 
