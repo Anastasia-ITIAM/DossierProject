@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -74,13 +72,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $status = 'active';
 
-    /**
-     * @var Collection<int, Car>
-     */
+   
     #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user')]
     private Collection $cars;
+    
 
-    public function __construct()
+   public function __construct()
     {
         $this->cars = new ArrayCollection();
     }
@@ -106,8 +103,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static { $this->password = $password; return $this; }
     public function getCredits(): ?int { return $this->credits; }
     public function setCredits(int $credits): static { $this->credits = $credits; return $this; }
-    public function getRole(): ?string{return $this->role;}
-    public function setRole(string $role): static{$this->role = $role;return $this;}
+    public function getRole(): ?string { return $this->role; }
+    public function setRole(string $role): static { $this->role = $role; return $this; }
     public function getCreatedAt(): ?\DateTime { return $this->createdAt; }
     public function setCreatedAt(\DateTime $createdAt): static { $this->createdAt = $createdAt; return $this; }
     public function getProfilePhotoUrl(): ?string { return $this->profilePhotoUrl; }
@@ -116,20 +113,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
     // MÉTHODES POUR SYMFONY SECURITY
-
     public function getUserIdentifier(): string { return (string)$this->email; }
+    public function getRoles(): array { return [$this->role ?? 'ROLE_PASSENGER']; }
+    public function eraseCredentials(): void {}
 
-    public function getRoles(): array {
-        return [$this->role ?? 'ROLE_PASSENGER'];
-    }
-
-    public function eraseCredentials(): void {
-        // supprimer les données sensibles temporaires
-    }
-
-    /**
-     * @return Collection<int, Car>
-     */
+   
     public function getCars(): Collection
     {
         return $this->cars;
@@ -155,4 +143,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+    
 }

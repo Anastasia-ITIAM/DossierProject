@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<DriverPreference>
+ *
+ * @method DriverPreference|null find($id, $lockMode = null, $lockVersion = null)
+ * @method DriverPreference|null findOneBy(array $criteria, array $orderBy = null)
+ * @method DriverPreference[]    findAll()
+ * @method DriverPreference[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class DriverPreferenceRepository extends ServiceEntityRepository
 {
@@ -16,28 +21,28 @@ class DriverPreferenceRepository extends ServiceEntityRepository
         parent::__construct($registry, DriverPreference::class);
     }
 
-    //    /**
-    //     * @return DriverPreference[] Returns an array of DriverPreference objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('d')
-    //            ->andWhere('d.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('d.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function add(DriverPreference $preference, bool $flush = true): void
+    {
+        $this->_em->persist($preference);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
 
-    //    public function findOneBySomeField($value): ?DriverPreference
-    //    {
-    //        return $this->createQueryBuilder('d')
-    //            ->andWhere('d.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function remove(DriverPreference $preference, bool $flush = true): void
+    {
+        $this->_em->remove($preference);
+        if ($flush) {
+            $this->_em->flush();
+        }
+    }
+
+    public function findByDriverId(int $driverId): ?DriverPreference
+    {
+        return $this->createQueryBuilder('dp')
+            ->andWhere('dp.driver_id = :driverId')
+            ->setParameter('driverId', $driverId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
