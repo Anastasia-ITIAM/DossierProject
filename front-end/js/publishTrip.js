@@ -52,7 +52,7 @@ function initPublishTripForm() {
 
         const payload = {
             car_id: parseInt(formData.get('vehicule_id'), 10),
-            user_id: window.currentUserId,
+            user_id: window.currentUserId, // Vérifie que currentUserId est bien défini
             departure_address: formData.get('adresse_depart'),
             arrival_address: formData.get('adresse_arrivee'),
             departure_date: formData.get('date_depart'),
@@ -60,12 +60,14 @@ function initPublishTripForm() {
             arrival_time: formData.get('heure_arrivee'),
             available_seats: parseInt(formData.get('places_disponibles'), 10),
             eco_friendly: formData.get('voyage_ecologique') === '1',
+            price: parseInt(formData.get('prix'), 10), // <-- AJOUT du prix en crédits
             status: 'open'
         };
 
         try {
             const resp = await authFetch('http://localhost:8081/api/trip/add', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' }, // <-- important
                 body: JSON.stringify(payload)
             });
             const result = await resp.json();
