@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TripRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
 class Trip
@@ -17,8 +18,9 @@ class Trip
     #[ORM\Column]
     private ?int $car_id = null;
 
-    #[ORM\Column]
-    private ?int $user_id = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     #[ORM\Column(length: 255)]
     private ?string $departure_address = null;
@@ -53,16 +55,13 @@ class Trip
     #[ORM\Column(nullable: true)]
     private ?bool $participant_validation = null;
 
+    // --------------------
+    // Getters / Setters
+    // --------------------
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getCarId(): ?int
@@ -73,19 +72,17 @@ class Trip
     public function setCarId(int $car_id): static
     {
         $this->car_id = $car_id;
-
         return $this;
     }
 
-    public function getUserId(): ?int
+    public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
-    public function setUserId(int $user_id): static
+    public function setUser(?User $user): static
     {
-        $this->user_id = $user_id;
-
+        $this->user = $user;
         return $this;
     }
 
@@ -97,7 +94,6 @@ class Trip
     public function setDepartureAddress(string $departure_address): static
     {
         $this->departure_address = $departure_address;
-
         return $this;
     }
 
@@ -109,7 +105,6 @@ class Trip
     public function setArrivalAddress(string $arrival_address): static
     {
         $this->arrival_address = $arrival_address;
-
         return $this;
     }
 
@@ -121,7 +116,6 @@ class Trip
     public function setDepartureDate(\DateTime $departure_date): static
     {
         $this->departure_date = $departure_date;
-
         return $this;
     }
 
@@ -133,7 +127,6 @@ class Trip
     public function setDepartureTime(\DateTime $departure_time): static
     {
         $this->departure_time = $departure_time;
-
         return $this;
     }
 
@@ -145,7 +138,6 @@ class Trip
     public function setArrivalTime(\DateTime $arrival_time): static
     {
         $this->arrival_time = $arrival_time;
-
         return $this;
     }
 
@@ -157,7 +149,6 @@ class Trip
     public function setAvailableSeats(int $available_seats): static
     {
         $this->available_seats = $available_seats;
-
         return $this;
     }
 
@@ -180,7 +171,6 @@ class Trip
     public function setEcoFriendly(bool $eco_friendly): static
     {
         $this->eco_friendly = $eco_friendly;
-
         return $this;
     }
 
@@ -192,7 +182,6 @@ class Trip
     public function setStatus(string $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 
@@ -204,7 +193,6 @@ class Trip
     public function setFinished(?bool $finished): static
     {
         $this->finished = $finished;
-
         return $this;
     }
 
@@ -216,7 +204,6 @@ class Trip
     public function setParticipantValidation(?bool $participant_validation): static
     {
         $this->participant_validation = $participant_validation;
-
         return $this;
     }
 }

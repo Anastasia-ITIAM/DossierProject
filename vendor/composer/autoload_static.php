@@ -48,6 +48,8 @@ class ComposerStaticInit5c41e0863668f7814915d73505cec39a
             'Symfony\\Component\\Config\\' => 25,
             'Symfony\\Component\\Clock\\' => 24,
             'Symfony\\Bundle\\SecurityBundle\\' => 30,
+            'Symfony\\Bundle\\MonologBundle\\' => 29,
+            'Symfony\\Bridge\\Monolog\\' => 23,
         ),
         'P' => 
         array (
@@ -55,6 +57,10 @@ class ComposerStaticInit5c41e0863668f7814915d73505cec39a
             'Psr\\EventDispatcher\\' => 20,
             'Psr\\Container\\' => 14,
             'Psr\\Clock\\' => 10,
+        ),
+        'M' => 
+        array (
+            'Monolog\\' => 8,
         ),
         'L' => 
         array (
@@ -173,6 +179,14 @@ class ComposerStaticInit5c41e0863668f7814915d73505cec39a
         array (
             0 => __DIR__ . '/..' . '/symfony/security-bundle',
         ),
+        'Symfony\\Bundle\\MonologBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/monolog-bundle',
+        ),
+        'Symfony\\Bridge\\Monolog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/monolog-bridge',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
@@ -188,6 +202,10 @@ class ComposerStaticInit5c41e0863668f7814915d73505cec39a
         'Psr\\Clock\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/clock/src',
+        ),
+        'Monolog\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
         ),
         'Lexik\\Bundle\\JWTAuthenticationBundle\\' => 
         array (

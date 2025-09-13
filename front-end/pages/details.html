@@ -1,146 +1,109 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>EcoRide</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoRide - Détails du trajet</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-    <!-- CSS perso -->
-    <link rel="stylesheet" href="/style.css" />
+  <!-- CSS perso -->
+  <link rel="stylesheet" href="/style.css" />
 
-    <!-- Script perso -->
-    <script type="module" src="/js/main.js"></script>
+  <!-- Script perso -->
+  <script type="module" src="/js/main.js"></script>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap" rel="stylesheet" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/logo.svg" />
 </head>
 
-<body>
-<!-- Header inclus via JS -->
-<div id="header-placeholder"></div>
+<body class="trip-details-page">
+  <!-- Header inclus via JS -->
+  <div id="header-placeholder"></div>
 
-    <div class="container my-5">
+  <div class="container my-5">
+    <h2 class="text-center mb-5">En route vers un trajet plus vert 🥝</h2>
 
-        <!-- Exemple si l’utilisateur est déjà inscrit -->
-        <!-- <div class="alert alert-info text-center my-3">
-        Vous participez déjà à ce trajet.
-        <form class="mt-2">
-            <button type="button" class="btn btn-danger">Annuler ma participation</button>
-        </form>
-        </div> -->
-
-        <h2 class="text-center mb-5">En route vers un trajet plus vert 🥝</h2>
-
-        <div class="row">
-
-        <!-- Infos trajet -->
-        <div class="col-md-4 mb-4">
-            <div class="card eco-box p-3 shadow-sm h-100">
-            <h4 class="mb-3 text-center">Infos du trajet</h4>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item eco-box"><strong>Départ :</strong> Paris, Gare de Lyon</li>
-                <li class="list-group-item eco-box"><strong>Arrivée :</strong> Lyon, Part-Dieu</li>
-                <li class="list-group-item eco-box"><strong>Date :</strong> 25/08/2025</li>
-                <li class="list-group-item eco-box"><strong>Heure :</strong> 08:00 - 12:00</li>
-                <li class="list-group-item eco-box"><strong>Prix :</strong> 15 crédits</li>
-                <li class="list-group-item eco-box"><strong>Places disponibles :</strong> 2</li>
-                <li class="list-group-item eco-box"><strong>Écologique :</strong> Oui</li>
-                <li class="list-group-item eco-box"><strong>Conducteur :</strong> Jean Dupont (jean@example.com)</li>
-                <li class="list-group-item eco-box"><strong>Véhicule :</strong> Tesla Model 3 - Rouge - Électrique</li>
-            </ul>
-            </div>
+    <div class="row">
+      <!-- Infos trajet -->
+      <div class="col-md-6 mb-4">
+        <div class="card eco-box p-3 shadow-sm h-100">
+          <h4 class="mb-3 text-center">Infos du trajet</h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item eco-box"><strong>Départ :</strong> <span id="trip-departure"></span></li>
+            <li class="list-group-item eco-box"><strong>Arrivée :</strong> <span id="trip-arrival"></span></li>
+            <li class="list-group-item eco-box"><strong>Date :</strong> <span id="trip-date"></span></li>
+            <li class="list-group-item eco-box"><strong>Heure :</strong> <span id="trip-time"></span></li>
+            <li class="list-group-item eco-box"><strong>Prix :</strong> <span id="trip-price"></span></li>
+            <li class="list-group-item eco-box"><strong>Places disponibles :</strong> <span id="trip-seats"></span></li>
+            <li class="list-group-item eco-box"><strong>Écologique :</strong> <span id="trip-eco"></span></li>
+            <li class="list-group-item eco-box"><strong>Conducteur :</strong> <span id="trip-driver"></span></li>
+            <li class="list-group-item eco-box"><strong>Véhicule :</strong> <span id="trip-vehicle"></span></li>
+          </ul>
         </div>
+      </div>
 
-        <!-- Préférences -->
-        <div class="col-md-4 mb-4">
-            <div class="card eco-box p-3 shadow-sm h-100">
-            <h4 class="text-center mb-3">Préférences du conducteur</h4>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item eco-box">Musique : Oui</li>
-                <li class="list-group-item eco-box">Discussion : Oui</li>
-                <li class="list-group-item eco-box">Animaux : Non</li>
-                <li class="list-group-item eco-box">Climatisation : Oui</li>
-                <li class="list-group-item eco-box">Fumeur : Non</li>
-            </ul>
-            </div>
+      <!-- Avis -->
+      <div class="col-md-6 mb-4">
+        <div class="card eco-box p-3 shadow-sm h-100">
+          <h4 class="text-center mb-3">Avis du conducteur</h4>
+          <ul class="list-group list-group-flush" id="trip-reviews" style="max-height: 400px; overflow-y: auto;">
+            <!-- Avis injectés dynamiquement -->
+          </ul>
         </div>
-
-        <!-- Avis -->
-        <div class="col-md-4 mb-4">
-            <div class="card eco-box p-3 shadow-sm h-100">
-            <h4 class="text-center mb-3">Avis du conducteur</h4>
-            <ul class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
-                <li class="list-group-item eco-box">
-                <strong>Alice</strong> — 5/5<br>
-                <small>20/08/2025</small><br>
-                Très bon trajet, conducteur ponctuel et sympa.
-                </li>
-                <li class="list-group-item eco-box">
-                <strong>Marc</strong> — 4/5<br>
-                <small>15/08/2025</small><br>
-                Trajet agréable, voiture comfortable.
-                </li>
-            </ul>
-            </div>
-        </div>
-
-        </div>
-
-        <!-- Boutons -->
-        <div class="text-center mt-4">
-        <div class="alert alert-info mb-4">Connectez-vous pour réserver ce trajet.</div>
-        <a href="signIn.html" class="btn custom-btn mx-2">Se connecter</a>
-        <a href="signUp.html" class="btn custom-btn mx-2">Créer un compte</a>
-        <a href="myTrips.html" class="btn custom-btn">← Retour à mes trajets</a>
-        </div>
-
-        <!-- Modal participation -->
-        <div class="modal fade" id="confirmParticipationModal" tabindex="-1" aria-labelledby="confirmParticipationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content eco-box">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmer votre participation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body">
-                <p>Ce trajet coûte <strong>15 crédits</strong>.</p>
-                <p>Crédits restants après : <strong>85</strong></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn custom-btn">Oui, je confirme</button>
-            </div>
-            </div>
-        </div>
-        </div>
-
-        <!-- Liste passagers (visible seulement pour le conducteur, en statique) -->
-        <div class="container mt-4" style="max-width: 600px;">
-        <div class="card eco-box shadow-sm">
-            <div class="card-header text-white" style="background-color: var(--eco-green); font-family: var(--eco-font);">
-            <h5 class="mb-0">🐸 Passagers inscrits à ce trajet</h5>
-            </div>
-            <div class="card-body">
-            <ul class="list-group">
-                <li class="list-group-item eco-box">Alice (alice@example.com)</li>
-                <li class="list-group-item eco-box">Marc (marc@example.com)</li>
-            </ul>
-            </div>
-        </div>
-        </div>
-
+      </div>
     </div>
 
+    <!-- Boutons -->
+    <div id="auth-box" class="text-center mt-4">
+      <div class="alert alert-info mb-4">Connectez-vous pour réserver ce trajet.</div>
+      <a href="signIn.html" class="btn custom-btn mx-2">Se connecter</a>
+      <a href="signUp.html" class="btn custom-btn mx-2">Créer un compte</a>
+    </div>
+        <div class="text-center mt-4">
+          <a href="myTrips.html" class="btn custom-btn">← Retour à mes trajets</a>
+        </div>
 
-    <!-- Footer via JS -->
-    <div id="footer-placeholder"></div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Modal participation -->
+    <div class="modal fade" id="confirmParticipationModal" tabindex="-1" aria-labelledby="confirmParticipationModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content eco-box">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmer votre participation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            <p>Ce trajet coûte <strong id="modal-price"></strong>.</p>
+            <p>Crédits restants après : <strong id="modal-credit"></strong></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn custom-btn">Oui, je confirme</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Liste passagers -->
+    <div class="container mt-4" style="max-width: 600px;">
+      <div class="card eco-box shadow-sm">
+        <div class="card-header text-white" style="background-color: var(--eco-green); font-family: var(--eco-font);">
+          <h5 class="mb-0">🐸 Passagers inscrits à ce trajet</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group" id="trip-passengers">
+            <!-- Passagers injectés dynamiquement -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    </body>
-    </html>
+  <!-- Footer via JS -->
+  <div id="footer-placeholder"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

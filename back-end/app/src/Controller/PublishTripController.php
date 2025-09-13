@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Trip;
+use App\Entity\User;
+use App\Entity\Car;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +28,7 @@ class PublishTripController extends AbstractController
     public function add(Request $request): JsonResponse
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
         }
 
@@ -37,7 +39,7 @@ class PublishTripController extends AbstractController
         }
 
         $trip = new Trip();
-        $trip->setUserId($user->getId());
+        $trip->setUser($user);
         $trip->setCarId((int)$data['car_id']);
         $trip->setDepartureAddress($data['departure_address'] ?? '');
         $trip->setArrivalAddress($data['arrival_address'] ?? '');
@@ -62,44 +64,81 @@ class PublishTripController extends AbstractController
     }
 
     // --------------------
-// Lister les trajets de l'utilisateur
-// --------------------
-#[Route('/list', name: 'list_trips', methods: ['GET'])]
-public function list(): JsonResponse
-{
-    $user = $this->getUser();
-    if (!$user) {
-        return new JsonResponse([
-            'success' => false,
-            'message' => 'Utilisateur non connecté.'
-        ], 401);
+    // Lister les trajets de l'utilisateur
+    // --------------------
+    #[Route('/list', name: 'list_trips', methods: ['GET'])]
+    public function list(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
+        }
+
+        $trips = $this->em->getRepository(Trip::class)
+            ->findBy(['user' => $user], ['departure_date' => 'ASC', 'departure_time' => 'ASC']);
+
+        $data = array_map(function(Trip $trip) {
+            return [
+                'id' => $trip->getId(),
+                'car_id' => $trip->getCarId(),
+                'user_id' => $trip->getUser()?->getId(),
+                'departure_address' => $trip->getDepartureAddress(),
+                'arrival_address' => $trip->getArrivalAddress(),
+                'departure_date' => $trip->getDepartureDate()?->format('Y-m-d'),
+                'departure_time' => $trip->getDepartureTime()?->format('H:i'),
+                'arrival_time' => $trip->getArrivalTime()?->format('H:i'),
+                'available_seats' => $trip->getAvailableSeats(),
+                'price' => $trip->getPrice(),
+                'eco_friendly' => $trip->isEcoFriendly(),
+                'status' => $trip->getStatus(),
+                'finished' => $trip->isFinished(),
+                'participant_validation' => $trip->isParticipantValidation(),
+            ];
+        }, $trips);
+
+        return new JsonResponse(['success' => true, 'trips' => $data]);
     }
 
-    $trips = $this->em->getRepository(Trip::class)
-        ->findBy(['user_id' => $user->getId()], ['departure_date' => 'ASC', 'departure_time' => 'ASC']);
+    // --------------------
+    // Détails d'un trajet par ID
+    // --------------------
+    #[Route('/{id}', name: 'trip_details', methods: ['GET'])]
+    public function details(int $id): JsonResponse
+    {
+        $trip = $this->em->getRepository(Trip::class)->find($id);
 
-    $data = array_map(function(Trip $trip) {
-        return [
-            'id' => $trip->getId(),
-            'car_id' => $trip->getCarId(),
-            'user_id' => $trip->getUserId(),
-            'departure_address' => $trip->getDepartureAddress(),
-            'arrival_address' => $trip->getArrivalAddress(),
-            'departure_date' => $trip->getDepartureDate()?->format('Y-m-d'),
-            'departure_time' => $trip->getDepartureTime()?->format('H:i'),
-            'arrival_time' => $trip->getArrivalTime()?->format('H:i'),
-            'available_seats' => $trip->getAvailableSeats(),
-            'price' => $trip->getPrice(),
-            'eco_friendly' => $trip->isEcoFriendly(),
-            'status' => $trip->getStatus(),
-            'finished' => $trip->isFinished(),
-            'participant_validation' => $trip->isParticipantValidation(),
-        ];
-    }, $trips);
+        if (!$trip) {
+            return new JsonResponse(['success' => false, 'message' => 'Trajet non trouvé'], 404);
+        }
 
-    return new JsonResponse([
-        'success' => true,
-        'trips' => $data
-    ]);
+        $driver = $trip->getUser();
+        $driverName = $driver ? $driver->getPseudo() : 'Inconnu';
+
+        // Récupérer le véhicule lié au car_id
+        $car = $this->em->getRepository(Car::class)->find($trip->getCarId());
+        $vehicle = $car ? sprintf('%s %s (%s)', $car->getBrand(), $car->getModel(), $car->getColor()) : null;
+
+        return new JsonResponse([
+            'success' => true,
+            'trip' => [
+                'id' => $trip->getId(),
+                'car_id' => $trip->getCarId(),
+                'user_id' => $driver?->getId(),
+                'departure_address' => $trip->getDepartureAddress(),
+                'arrival_address' => $trip->getArrivalAddress(),
+                'departure_date' => $trip->getDepartureDate()?->format('Y-m-d'),
+                'departure_time' => $trip->getDepartureTime()?->format('H:i'),
+                'arrival_time' => $trip->getArrivalTime()?->format('H:i'),
+                'available_seats' => $trip->getAvailableSeats(),
+                'price' => $trip->getPrice(),
+                'eco_friendly' => $trip->isEcoFriendly(),
+                'status' => $trip->getStatus(),
+                'finished' => $trip->isFinished(),
+                'participant_validation' => $trip->isParticipantValidation(),
+                'driver_name' => $driverName,
+                'vehicle' => $vehicle,
+                'passengers' => [] // à compléter plus tard
+            ]
+        ]);
     }
 }

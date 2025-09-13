@@ -1,5 +1,6 @@
 {
     "require": {
-        "lexik/jwt-authentication-bundle": "^3.1"
+        "lexik/jwt-authentication-bundle": "^3.1",
+        "symfony/monolog-bundle": "^3.10"
     }
 }

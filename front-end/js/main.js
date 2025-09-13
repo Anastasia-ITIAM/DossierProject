@@ -10,6 +10,7 @@ import { initProfilUI } from './profilUI.js';
 import { initCarPage } from './car.js';
 import { initPublishTrip } from './publishTrip.js';
 import { initMyTrips } from './myTrips.js';
+import { initTripDetails } from './tripDetails.js';
 
 
 
@@ -20,6 +21,7 @@ const pageInits = {
     'driver-page': initCarPage, 
     'publishTrip-page': initPublishTrip,
     'trips-page': initMyTrips,
+    'trip-details-page': initTripDetails,
     'profil-page': () => {
         initProfil();
         initProfilUI();
