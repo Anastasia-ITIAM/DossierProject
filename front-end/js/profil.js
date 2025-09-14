@@ -1,6 +1,8 @@
 export function initProfil() {
 
-    // Utilitaires sécurité
+    // ------------------------
+    // Utilitaires
+    // ------------------------
     function sanitizeInput(input) {
         if (typeof input !== "string") return input;
         return input.replace(/[<>]/g, "");
@@ -12,12 +14,22 @@ export function initProfil() {
         alert(div.textContent);
     }
 
+    // Vérifie si le profil est complet
+    function isProfileComplete(userData) {
+        const requiredFields = ['email', 'pseudo', 'firstName', 'lastName', 'birthDate', 'postalAddress', 'phone'];
+        return requiredFields.every(field => userData[field] && userData[field].trim() !== '');
+    }
+
+    // ------------------------
+    // Sélection du formulaire et alert
+    // ------------------------
     const form = document.getElementById('updateProfileForm');
     if (!form) {
         console.error("Formulaire #updateProfileForm non trouvé");
         return;
     }
 
+    const profileAlert = document.querySelector('.col-md-8 h5.text-danger');
     const userId = window.currentUserId;
     if (!userId) {
         console.error("Aucun utilisateur connecté !");
@@ -26,22 +38,22 @@ export function initProfil() {
 
     const storageKey = `userProfile_${userId}`;
 
-    // Charger les données utilisateur
+    // ------------------------
+    // Chargement des données utilisateur
+    // ------------------------
     async function loadUserData() {
         try {
             const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
-            console.log("Données stockées existantes :", storedData);
-
             const profileImage = document.getElementById("profileImage");
+
+            // Affiche la photo si déjà stockée
             if (profileImage && storedData.profilePhotoUrl) {
                 profileImage.src = `http://localhost:8081${storedData.profilePhotoUrl}`;
-                console.log("Affichage photo depuis sessionStorage :", storedData.profilePhotoUrl);
             }
 
-            // Récupérer les données serveur
+            // Récupère les données depuis le serveur
             const res = await fetch(`http://localhost:8081/api/user/${userId}`);
             const result = await res.json();
-            console.log("Réponse serveur :", result);
 
             if (!res.ok || !result.success) {
                 console.error("Impossible de récupérer les données serveur");
@@ -49,9 +61,9 @@ export function initProfil() {
             }
 
             const serverData = result.user;
-            const userData = { ...storedData, ...serverData }; // fusion serveur + local
+            const userData = { ...storedData, ...serverData };
 
-            // Remplir le formulaire
+            // Remplissage du formulaire
             for (const key in userData) {
                 const input = form.querySelector(`[name="${key}"]`);
                 if (input) input.value = sanitizeInput(userData[key]) || '';
@@ -61,11 +73,9 @@ export function initProfil() {
                 profileImage.src = `http://localhost:8081${userData.profilePhotoUrl}`;
             }
 
-            // Stocker dans sessionStorage
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
-            console.log("SessionStorage mis à jour :", JSON.parse(sessionStorage.getItem(storageKey)));
 
-            // Événement pour signaler que le profil est prêt
+            // Déclenchement de l'événement pour mettre à jour l'UI
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: userData }));
 
         } catch (err) {
@@ -75,7 +85,9 @@ export function initProfil() {
 
     loadUserData();
 
+    // ------------------------
     // Soumission du formulaire
+    // ------------------------
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -91,18 +103,16 @@ export function initProfil() {
             });
 
             const result = await res.json();
-            console.log("Réponse mise à jour :", result);
 
             if (!res.ok || !result.success) {
                 return safeAlert(result.message || `Erreur serveur : ${res.status}`);
             }
 
             safeAlert("Profil mis à jour !");
-            console.log("Utilisateur mis à jour :", result.user);
-
             const profileImage = document.getElementById("profileImage");
             const updatedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
 
+            // Mise à jour des données locales et du formulaire
             for (const key in result.user) {
                 updatedData[key] = result.user[key];
                 const input = form.querySelector(`[name="${key}"]`);
@@ -117,7 +127,6 @@ export function initProfil() {
             }
 
             sessionStorage.setItem(storageKey, JSON.stringify(updatedData));
-            console.log("SessionStorage après submit :", JSON.parse(sessionStorage.getItem(storageKey)));
 
             // Déclenchement de l'événement pour mettre à jour l'UI immédiatement
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: updatedData }));
@@ -125,6 +134,16 @@ export function initProfil() {
         } catch (err) {
             console.error("Erreur fetch :", err);
             safeAlert("Erreur réseau ou serveur : " + err.message);
+        }
+    });
+
+    // ------------------------
+    // Écoute pour cacher l'alerte si profil complet
+    // ------------------------
+    window.addEventListener('profileDataReady', (e) => {
+        const userData = e.detail;
+        if (profileAlert) {
+            profileAlert.style.display = isProfileComplete(userData) ? 'none' : 'block';
         }
     });
 }
