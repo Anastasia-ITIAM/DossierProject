@@ -34,8 +34,10 @@ security:
 
     access_control:
         # Routes publiques (pas besoin de token)
-        - { path: ^/api/user, roles: PUBLIC_ACCESS }        # inscription
-        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }  # login
+        - { path: ^/api/user, roles: PUBLIC_ACCESS }           # inscription
+        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }     # login
+        - { path: ^/api/trip/search, roles: PUBLIC_ACCESS }   # recherche libre
+        - { path: ^/api/trip/all, roles: PUBLIC_ACCESS }      # listing libre
 
         # Toutes les autres routes API nécessitent un token JWT
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

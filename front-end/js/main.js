@@ -11,6 +11,8 @@ import { initCarPage } from './car.js';
 import { initPublishTrip } from './publishTrip.js';
 import { initMyTrips } from './myTrips.js';
 import { initTripDetails } from './tripDetails.js';
+import { initSearchTrip } from './searchTrip.js';
+
 
 
 
@@ -22,6 +24,7 @@ const pageInits = {
     'publishTrip-page': initPublishTrip,
     'trips-page': initMyTrips,
     'trip-details-page': initTripDetails,
+    'trip-search-page': initSearchTrip,
     'profil-page': () => {
         initProfil();
         initProfilUI();

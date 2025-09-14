@@ -38,30 +38,34 @@ class TripRepository extends ServiceEntityRepository
     }
 
     /**
-     * Exemple de méthode personnalisée pour récupérer les trajets d'un utilisateur
+     * Récupère tous les trajets d’un utilisateur
      */
     public function findByUserId(int $userId): array
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.user_id = :userId')
+            ->andWhere('t.user = :userId') // relation User
             ->setParameter('userId', $userId)
-            ->orderBy('t.departure_date', 'ASC')
-            ->addOrderBy('t.departure_time', 'ASC')
+            ->orderBy('t.departureDate', 'ASC')
+            ->addOrderBy('t.departureTime', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
+    /**
+     * Récupère les trajets à venir d’un utilisateur
+     */
     public function findUpcomingTrips(int $userId): array
     {
         $now = new \DateTime();
 
         return $this->createQueryBuilder('t')
-            ->andWhere('t.user_id = :userId')
-            ->andWhere('t.departure_date > :now OR (t.departure_date = :now AND t.departure_time > :now)')
+            ->andWhere('t.user = :userId')
+            ->andWhere('t.departureDate > :today OR (t.departureDate = :today AND t.departureTime > :time)')
             ->setParameter('userId', $userId)
-            ->setParameter('now', $now)
-            ->orderBy('t.departure_date', 'ASC')
-            ->addOrderBy('t.departure_time', 'ASC')
+            ->setParameter('today', $now->format('Y-m-d'))
+            ->setParameter('time', $now->format('H:i'))
+            ->orderBy('t.departureDate', 'ASC')
+            ->addOrderBy('t.departureTime', 'ASC')
             ->getQuery()
             ->getResult();
     }
