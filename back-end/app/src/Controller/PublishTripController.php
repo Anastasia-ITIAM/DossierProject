@@ -36,7 +36,16 @@ class PublishTripController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Car ID requis'], 400);
         }
 
+        // Vérifier que l'utilisateur a au moins 2 crédits
+        if ($user->getCredits() < 2) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Vous n’avez pas assez de crédits pour publier ce trajet.'
+            ], 400);
+        }
+
         try {
+            // Créer le trajet
             $trip = new Trip();
             $trip->setUser($user)
                 ->setCarId((int)$data['car_id'])
@@ -53,12 +62,18 @@ class PublishTripController extends AbstractController
                 ->setParticipantValidation(false);
 
             $this->em->persist($trip);
+
+            // Déduire 2 crédits pour publier
+            $user->setCredits($user->getCredits() - 2);
+            $this->em->persist($user);
+
             $this->em->flush();
 
             return new JsonResponse([
                 'success' => true,
                 'message' => 'Trajet publié avec succès',
-                'trip_id' => $trip->getId()
+                'trip_id' => $trip->getId(),
+                'credits' => $user->getCredits() // renvoyer le nouveau solde
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -89,10 +104,20 @@ class PublishTripController extends AbstractController
         }
 
         try {
+            // Supprimer le trajet
             $this->em->remove($trip);
+
+            // Rembourser les 2 crédits
+            $user->setCredits($user->getCredits() + 2);
+            $this->em->persist($user);
+
             $this->em->flush();
 
-            return new JsonResponse(['success' => true, 'message' => 'Trajet supprimé avec succès.']);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Trajet supprimé avec succès. Vos crédits ont été remboursés.',
+                'credits' => $user->getCredits() // renvoyer le nouveau solde
+            ]);
         } catch (\Exception $e) {
             return new JsonResponse([
                 'success' => false,

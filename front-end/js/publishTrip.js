@@ -1,24 +1,8 @@
 import { authFetch } from './signIn.js';
 
-/* ---------- Utils ---------- */
-function toDateInputValue(date) {
-    if (!date) return '';
-    const d = new Date(date);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-function toTimeInputValue(date) {
-    if (!date) return '';
-    const d = new Date(date);
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${hh}:${mm}`;
-}
-
-/* ---------- Populate voitures ---------- */
+// ------------------------
+// Récupérer et remplir la liste des voitures de l'utilisateur
+// ------------------------
 async function populateUserCars() {
     const select = document.getElementById('vehicule_id');
     if (!select) return;
@@ -37,12 +21,26 @@ async function populateUserCars() {
             });
         }
     } catch (err) {
-        console.error('Erreur récupération voitures :', err);
+        console.error("[PublishTrip] Erreur récupération voitures :", err);
     }
 }
 
-/* ---------- Formulaire publication trajet ---------- */
-function initPublishTripForm() {
+// ------------------------
+// Mise à jour des crédits locaux et UI
+// ------------------------
+function updateCredits(amount) {
+    const userId = window.currentUserId;
+    const storageKey = `userProfile_${userId}`;
+    const currentData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+    currentData.credits = (currentData.credits || 0) + amount;
+    sessionStorage.setItem(storageKey, JSON.stringify(currentData));
+    window.dispatchEvent(new CustomEvent("profileDataReady", { detail: currentData }));
+}
+
+// ------------------------
+// Formulaire de publication de trajet
+// ------------------------
+function setupPublishTripForm() {
     const form = document.getElementById('publish_trip');
     if (!form) return;
 
@@ -50,9 +48,18 @@ function initPublishTripForm() {
         e.preventDefault();
         const formData = new FormData(form);
 
+        const storageKey = `userProfile_${window.currentUserId}`;
+        const currentData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        const userCredits = currentData.credits || 0;
+
+        // Vérifier crédits
+        if (userCredits < 2) {
+            alert("Vous n'avez pas assez de crédits pour publier ce trajet.");
+            return;
+        }
+
         const payload = {
             car_id: parseInt(formData.get('vehicule_id'), 10),
-            user_id: window.currentUserId, // Vérifie que currentUserId est bien défini
             departure_address: formData.get('adresse_depart'),
             arrival_address: formData.get('adresse_arrivee'),
             departure_date: formData.get('date_depart'),
@@ -60,33 +67,78 @@ function initPublishTripForm() {
             arrival_time: formData.get('heure_arrivee'),
             available_seats: parseInt(formData.get('places_disponibles'), 10),
             eco_friendly: formData.get('voyage_ecologique') === '1',
-            price: parseInt(formData.get('prix'), 10), // <-- AJOUT du prix en crédits
+            price: parseInt(formData.get('prix'), 10),
             status: 'open'
         };
 
         try {
             const resp = await authFetch('http://localhost:8081/api/trip/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }, // <-- important
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             const result = await resp.json();
 
-            if (resp.ok && result.success) {
-                alert('Trajet publié avec succès !');
-                window.location.href = '/pages/myTrips.html';
-            } else {
+            if (!resp.ok || !result.success) {
                 alert('Erreur publication : ' + (result.message || JSON.stringify(result)));
+                return;
             }
+
+            // Déduire 2 crédits localement
+            updateCredits(-2);
+
+            alert('Trajet publié avec succès ! 2 crédits ont été déduits ✅');
+            window.location.href = '/pages/myTrips.html';
+
         } catch (err) {
-            alert('Erreur réseau');
-            console.error(err);
+            console.error("[PublishTrip] Erreur publication trajet :", err);
+            alert('Erreur réseau ou serveur');
         }
     });
 }
 
-/* ---------- Init page ---------- */
-export async function initPublishTrip() {
+// ------------------------
+// Bouton suppression trajet
+// ------------------------
+function setupDeleteTripButton(tripId) {
+    const deleteContainer = document.querySelector('#delete-trip-container');
+    if (!deleteContainer) return;
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-danger mt-3';
+    deleteBtn.textContent = 'Supprimer le trajet';
+
+    deleteBtn.addEventListener('click', async () => {
+        if (!confirm('Voulez-vous vraiment supprimer ce trajet ?')) return;
+
+        try {
+            const delResp = await authFetch(`http://localhost:8081/api/trip/delete/${tripId}`, { method: 'DELETE' });
+            const delResult = await delResp.json();
+
+            if (delResult.success) {
+                alert('Trajet supprimé avec succès.');
+                // Restaurer les crédits du chauffeur
+                updateCredits(2);
+
+                // Redirection
+                window.location.href = '/pages/myTrips.html';
+            } else {
+                alert('Erreur lors de la suppression : ' + delResult.message);
+            }
+        } catch (err) {
+            console.error("[PublishTrip] Erreur suppression trajet:", err);
+            alert('Impossible de supprimer le trajet.');
+        }
+    });
+
+    deleteContainer.appendChild(deleteBtn);
+}
+
+// ------------------------
+// Initialisation
+// ------------------------
+export async function initPublishTrip(tripId = null) {
     await populateUserCars();
-    initPublishTripForm();
+    setupPublishTripForm();
+    if (tripId) setupDeleteTripButton(tripId);
 }

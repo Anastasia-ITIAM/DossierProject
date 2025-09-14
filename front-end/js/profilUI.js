@@ -6,7 +6,7 @@ export function initProfilUI() {
 
     const userId = window.currentUserId;
     if (!userId) {
-        console.error("Aucun utilisateur connecté !");
+        console.error("[ProfilUI] Aucun utilisateur connecté !");
         return;
     }
 
@@ -19,10 +19,9 @@ export function initProfilUI() {
         ROLE_EMPLOYEE: "employé"
     };
 
-    // Définir quels boutons sont visibles pour chaque rôle
     const visibleByRole = {
-        ROLE_PASSENGER: ["driver"],                   // passager normal ne peut pas publier ni avoir de véhicules
-        ROLE_PASSENGER_DRIVER: ["publish", "myCars"], // chauffeur/passager peut publier et gérer ses véhicules
+        ROLE_PASSENGER: ["driver"],
+        ROLE_PASSENGER_DRIVER: ["publish", "myCars"],
         ROLE_EMPLOYEE: ["employee"],
         ROLE_ADMIN: ["employee", "admin"]
     };
@@ -31,48 +30,49 @@ export function initProfilUI() {
         employee: document.getElementById("btnEmployee"),
         admin: document.getElementById("btnAdmin"),
         driver: document.getElementById("btnDriver"),
-        publish: document.getElementById("btnPublishTrip"), // bouton Publier un trajet
-        myCars: document.getElementById("btnMyCars")       // bouton Mes véhicules
+        publish: document.getElementById("btnPublishTrip"),
+        myCars: document.getElementById("btnMyCars")
     };
 
-    // Bloquer l'accès à devenir chauffeur si profil incomplet
+    // Bloquer l’accès au rôle chauffeur si profil incomplet
     if (buttons.driver) {
         buttons.driver.addEventListener("click", (event) => {
-            const requiredFields = [
-                "email", "pseudo", "firstName", "lastName", 
-                "birthDate", "postalAddress", "phone"
-            ];
-
+            const requiredFields = ["email", "pseudo", "firstName", "lastName", "birthDate", "postalAddress", "phone"];
             const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
             const incomplete = requiredFields.some(field => !data[field] || data[field].trim() === "");
-
             if (incomplete) {
                 event.preventDefault();
                 alert("Vous devez compléter tous les champs de votre profil avant de devenir chauffeur·euse!");
-                window.location.href = "profil.html"; 
-                return false;
+                window.location.href = "profil.html";
             }
         });
     }
 
-    function refreshUI() {
-        const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
-        const userRole = data.role || "ROLE_UNKNOWN"; // fallback si rôle absent
-        console.log("Refresh UI avec ces données :", data);
-        console.log("Rôle utilisateur :", userRole);
+    // ------------------------
+    // Fonction de mise à jour de l'UI
+    // ------------------------
+    function refreshUI(dataOverride = null) {
+        const data = dataOverride || JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        const userRole = data.role || "ROLE_UNKNOWN";
 
-        // Mettre à jour infos du profil
+        // Photo et pseudo
         if (profileImage) profileImage.src = data.profilePhotoUrl ? `http://localhost:8081${data.profilePhotoUrl}` : "";
         if (profilePseudo) profilePseudo.textContent = data.pseudo || "";
         if (profileRole) profileRole.textContent = roleLabels[userRole] || userRole;
-        if (profileCredits) profileCredits.textContent = data.credits !== undefined ? data.credits : "";
+
+        // Crédits
+        if (profileCredits) {
+            const displayedCredits = Number.isInteger(data.credits) ? data.credits : 0;
+            profileCredits.textContent = displayedCredits;
+            console.log("[ProfilUI] Crédits affichés :", displayedCredits);
+        }
 
         // Masquer tous les boutons par défaut
         Object.values(buttons).forEach(btn => {
             if (btn) btn.style.setProperty("display", "none", "important");
         });
 
-        // Afficher uniquement les boutons autorisés pour ce rôle
+        // Afficher uniquement les boutons autorisés pour le rôle
         if (visibleByRole[userRole]) {
             visibleByRole[userRole].forEach(key => {
                 if (buttons[key]) buttons[key].style.setProperty("display", "inline-block", "important");
@@ -83,13 +83,16 @@ export function initProfilUI() {
     // Chargement initial
     refreshUI();
 
-    // Mettre à jour si sessionStorage change dans un autre onglet
+    // Événement cross-tab pour mise à jour si sessionStorage change
     window.addEventListener("storage", (event) => {
         if (event.key === storageKey) refreshUI();
     });
 
-    // Écouter un éventuel fetch serveur
-    window.addEventListener("profileDataReady", () => {
-        refreshUI();
+    // Écouter les mises à jour de crédits ou profil depuis d'autres modules (ex: PublishTrip ou TripDetails)
+    window.addEventListener("profileDataReady", (e) => {
+        if (e.detail && typeof e.detail === "object") {
+            sessionStorage.setItem(storageKey, JSON.stringify(e.detail));
+            refreshUI(e.detail);
+        }
     });
 }

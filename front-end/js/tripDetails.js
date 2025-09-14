@@ -11,6 +11,18 @@ export async function initTripDetails() {
         return;
     }
 
+    // ------------------------
+    // Mettre à jour crédits localement et déclencher update UI
+    // ------------------------
+    function updateCredits(amount) {
+        const storageKey = `userProfile_${loggedUserId}`;
+        const currentData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        currentData.credits = (currentData.credits || 0) + amount;
+        sessionStorage.setItem(storageKey, JSON.stringify(currentData));
+        window.currentUserCredits = currentData.credits;
+        window.dispatchEvent(new CustomEvent("profileDataReady", { detail: currentData }));
+    }
+
     try {
         const res = await authFetch(`http://localhost:8081/api/trip/${tripId}`, {}, true);
         if (!res.ok) throw new Error(`Erreur serveur : ${res.status}`);
@@ -24,7 +36,7 @@ export async function initTripDetails() {
         const trip = result.trip;
 
         // ------------------------
-        // Remplir les infos du trajet
+        // Affichage des informations du trajet
         // ------------------------
         const setText = (selector, value) => {
             const el = document.querySelector(selector);
@@ -70,27 +82,37 @@ export async function initTripDetails() {
         const now = new Date();
         if (depDateTime < now) {
             const pastMsg = document.createElement('div');
-            pastMsg.className = 'alert  text-center mt-3';
+            pastMsg.className = 'alert text-center mt-3';
             pastMsg.textContent = '⚠️ Ce trajet est terminé.';
             document.querySelector('.container.my-5').appendChild(pastMsg);
-            return; // on stoppe l'affichage des boutons
+            return;
         }
 
         // ------------------------
-        // Actions utilisateur : Réserver / Annuler / Supprimer
+        // Actions utilisateur
         // ------------------------
         const isPassenger = trip.passengers?.some(p => p.id === loggedUserId);
         const actionContainer = document.createElement('div');
         actionContainer.className = 'text-center mt-4';
         document.querySelector('.container.my-5').appendChild(actionContainer);
 
-        // Réserver si pas conducteur et pas passager
+        const tripPrice = trip.price || 0;
+
+        // --- Réserver ---
         if (trip.user_id !== loggedUserId && !isPassenger) {
             const reserveBtn = document.createElement('button');
             reserveBtn.className = 'btn custom-btn';
             reserveBtn.textContent = 'Réserver ce trajet';
 
             reserveBtn.addEventListener('click', async () => {
+                const storageKey = `userProfile_${loggedUserId}`;
+                const currentData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+
+                if ((currentData.credits || 0) < tripPrice) {
+                    alert("Vous n'avez pas assez de crédits pour réserver ce trajet.");
+                    return;
+                }
+
                 try {
                     const res = await authFetch(
                         `http://localhost:8081/api/trip/reservation/${trip.id}`,
@@ -101,9 +123,14 @@ export async function initTripDetails() {
 
                     if (resData.success) {
                         alert('Trajet réservé avec succès ! ✅');
+
+                        // Ajouter le passager localement
                         const newPassenger = { id: loggedUserId, name: resData.userName || 'Vous', email: resData.userEmail || '' };
                         trip.passengers.push(newPassenger);
                         renderPassengers(trip.passengers);
+
+                        // Déduire crédits
+                        updateCredits(-tripPrice);
 
                         setTimeout(() => window.location.href = 'myTrips.html', 300);
                     } else {
@@ -118,7 +145,7 @@ export async function initTripDetails() {
             actionContainer.appendChild(reserveBtn);
         }
 
-        // Annuler si déjà passager
+        // --- Annuler ---
         if (isPassenger) {
             const cancelBtn = document.createElement('button');
             cancelBtn.className = 'btn btn-danger mt-3';
@@ -136,8 +163,14 @@ export async function initTripDetails() {
 
                     if (resData.success) {
                         alert('Réservation annulée avec succès !');
+
+                        // Retirer le passager localement
                         trip.passengers = trip.passengers.filter(p => p.id !== loggedUserId);
                         renderPassengers(trip.passengers);
+
+                        // RESTITUER les crédits
+                        updateCredits(tripPrice);
+
                         setTimeout(() => window.location.href = 'myTrips.html', 300);
                     } else {
                         alert('Erreur : ' + resData.message);
@@ -151,7 +184,7 @@ export async function initTripDetails() {
             actionContainer.appendChild(cancelBtn);
         }
 
-        // Supprimer si conducteur
+        // --- Supprimer si conducteur ---
         if (trip.user_id === loggedUserId) {
             const deleteContainer = document.querySelector('#delete-trip-container');
             if (deleteContainer) {
@@ -169,6 +202,10 @@ export async function initTripDetails() {
                         const delResult = await delResp.json();
                         if (delResult.success) {
                             alert('Trajet supprimé avec succès.');
+
+                            // Optionnel : rembourser crédits du trajet publié si applicable
+                            updateCredits(tripPrice);
+
                             window.location.href = 'myTrips.html';
                         } else {
                             alert('Erreur : ' + delResult.message);

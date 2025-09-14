@@ -47,10 +47,21 @@ class TripReservationController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Vous avez déjà réservé ce trajet.'], 400);
         }
 
+        // Vérifier si l'utilisateur a assez de crédits
+        $tripPrice = $trip->getPrice();
+        if ($user->getCredits() < $tripPrice) {
+            return new JsonResponse(['success' => false, 'message' => 'Crédits insuffisants.'], 400);
+        }
+
+        // Déduire le montant du trajet
+        $user->setCredits($user->getCredits() - $tripPrice);
+
+        // Ajouter le passager et mettre à jour les places disponibles
         $trip->addPassenger($user);
         $trip->setAvailableSeats($trip->getAvailableSeats() - 1);
 
         try {
+            $this->em->persist($user); // mettre à jour les crédits
             $this->em->persist($trip);
             $this->em->flush();
 
@@ -58,6 +69,7 @@ class TripReservationController extends AbstractController
                 'success' => true,
                 'message' => 'Trajet réservé avec succès.',
                 'trip_id' => $trip->getId(),
+                'remaining_credits' => $user->getCredits(),
                 'userName' => method_exists($user, 'getPseudo') ? $user->getPseudo() : $user->getUsername(),
                 'userEmail' => method_exists($user, 'getEmail') ? $user->getEmail() : '',
             ]);
@@ -89,10 +101,16 @@ class TripReservationController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Vous n\'êtes pas inscrit à ce trajet.'], 400);
         }
 
+        // Restituer les crédits au passager
+        $tripPrice = $trip->getPrice();
+        $user->setCredits($user->getCredits() + $tripPrice);
+
+        // Retirer le passager et mettre à jour les places disponibles
         $trip->removePassenger($user);
         $trip->setAvailableSeats($trip->getAvailableSeats() + 1);
 
         try {
+            $this->em->persist($user); // mettre à jour crédits
             $this->em->persist($trip);
             $this->em->flush();
 
@@ -100,6 +118,7 @@ class TripReservationController extends AbstractController
                 'success' => true,
                 'message' => 'Réservation annulée avec succès.',
                 'trip_id' => $trip->getId(),
+                'remaining_credits' => $user->getCredits(), // renvoyer le nouveau solde pour le frontend
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -137,7 +156,7 @@ class TripReservationController extends AbstractController
         $tripData = array_map(function(Trip $trip) {
             return [
                 'id' => $trip->getId(),
-                'user_id' => $trip->getUser()?->getId(), // <-- important pour le frontend
+                'user_id' => $trip->getUser()?->getId(),
                 'departure_address' => $trip->getDepartureAddress(),
                 'arrival_address' => $trip->getArrivalAddress(),
                 'departure_date' => $trip->getDepartureDate()?->format('Y-m-d'),

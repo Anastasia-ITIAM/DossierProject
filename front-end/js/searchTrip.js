@@ -41,7 +41,7 @@ export async function initSearchTrip() {
             return;
         }
 
-        // Vérifier si un trajet correspond **exactement** à tous les critères
+        // Vérifier si un trajet correspond exactement à tous les critères
         let exactMatch = false;
         if (depart && arrivee && datetime) {
             exactMatch = result.trips.some(trip =>
@@ -62,8 +62,8 @@ export async function initSearchTrip() {
             resultsContainer.appendChild(alertDiv);
         }
 
-        // Mélanger les trajets pour affichage aléatoire
-        const trips = result.trips.sort(() => Math.random() - 0.5);
+        // Mélanger les trajets et ne garder que 3
+        const trips = result.trips.sort(() => Math.random() - 0.5).slice(0, 3);
 
         trips.forEach(trip => {
             let photoUrl = trip.driver_photo_url || '/uploads/profiles/profile_default.png';
