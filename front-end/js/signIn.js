@@ -1,13 +1,15 @@
 console.log('signIn.js chargé !');
 
 const TOKEN_KEY = 'jwt';
+const USERID_KEY = 'userId';
+let isLoggingOut = false; // Évite plusieurs redirections simultanées
 
 // Supprime les caractères HTML pour éviter XSS
 function sanitizeInput(input) {
     return input.replace(/[<>]/g, "");
 }
 
-// Alert sécurisée : ne permet pas d’exécuter du HTML ou du JS injecté
+// Alert sécurisée (non bloquante pour debug, ici simple alert)
 function safeAlert(message) {
     const div = document.createElement('div');
     div.textContent = Array.isArray(message) ? message.join('\n') : message;
@@ -19,6 +21,10 @@ export function setToken(token) { localStorage.setItem(TOKEN_KEY, token); }
 export function getToken() { return localStorage.getItem(TOKEN_KEY); }
 export function removeToken() { localStorage.removeItem(TOKEN_KEY); }
 
+export function setUserId(userId) { localStorage.setItem(USERID_KEY, userId); }
+export function getUserId() { return parseInt(localStorage.getItem(USERID_KEY), 10) || 0; }
+
+// Vérifie si le token est expiré
 export function isTokenExpired(token) {
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -29,30 +35,45 @@ export function isTokenExpired(token) {
     }
 }
 
-export function logout() {
+// Déconnexion sécurisée
+export function logout(redirect = true) {
+    if (isLoggingOut) return;
+    isLoggingOut = true;
+
     removeToken();
-    window.location.href = '/pages/signIn.html';
+    localStorage.removeItem(USERID_KEY);
+
+    if (redirect) {
+        setTimeout(() => {
+            window.location.href = '/pages/signIn.html';
+        }, 50);
+    }
 }
 
 // Fetch protégé avec JWT
-export async function authFetch(url, options = {}) {
+// forceAuth = false → pas de redirection automatique (utile pour pages publiques / debug)
+export async function authFetch(url, options = {}, forceAuth = true) {
     const token = getToken();
-    if (!token || isTokenExpired(token)) {
-        console.warn("Token expiré ou absent");
-        if (window.location.pathname.includes("profil.html")) logout();
+
+    if (forceAuth && (!token || isTokenExpired(token))) {
+        console.warn("Token expiré ou absent (redirection désactivée si forceAuth=false)");
+        // Commenter la ligne suivante pendant debug pour éviter redirection
+        // if (forceAuth) logout();
         throw new Error('Token expiré ou non présent');
     }
 
-    options.headers = {
-        ...(options.headers || {}),
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
+    options.headers = options.headers || {};
+    if (token && forceAuth) {
+        options.headers['Authorization'] = `Bearer ${token}`;
+    }
+    options.headers['Content-Type'] = 'application/json';
 
     const res = await fetch(url, options);
 
-    if (res.status === 401) {
-        if (window.location.pathname.includes("profil.html")) logout();
+    if (res.status === 401 && forceAuth) {
+        console.warn("Token invalide ou expiré");
+        // Commenter pendant debug
+        // logout();
         throw new Error('Token invalide ou expiré');
     }
 
@@ -72,10 +93,21 @@ export async function login(email, password) {
 
         if (res.ok && data.token) {
             setToken(data.token);
+
+            // Décodage du JWT pour récupérer l'ID utilisateur
+            try {
+                const payload = JSON.parse(atob(data.token.split('.')[1]));
+                if (payload.userId) {
+                    setUserId(payload.userId);
+                    console.log('User ID stocké:', payload.userId);
+                }
+            } catch (err) {
+                console.error('Erreur décodage JWT pour userId :', err);
+            }
+
             return { status: 'ok', token: data.token };
         }
 
-        // Toujours renvoyer le même message pour invalid credentials
         return { status: 'error', message: 'Email ou mot de passe incorrect. Veuillez réessayer.' };
     } catch (err) {
         console.error('Erreur fetch login :', err);
@@ -94,7 +126,6 @@ export function initSignIn() {
         const email = sanitizeInput(form.email.value.trim());
         const password = form.password.value;
 
-        // Validation front
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return safeAlert('Email invalide');
         if (password.length < 8) return safeAlert('Mot de passe invalide (8 caractères minimum)');
 
@@ -102,7 +133,9 @@ export function initSignIn() {
             const result = await login(email, password);
             if (result.status === 'ok') {
                 safeAlert('Connexion réussie !');
-                window.location.href = '/pages/profil.html';
+                setTimeout(() => {
+                    window.location.href = '/pages/profil.html';
+                }, 50);
             } else {
                 safeAlert(result.message);
             }
@@ -114,12 +147,15 @@ export function initSignIn() {
 }
 
 // Récupération infos utilisateur
-export async function getMe() {
+// forceAuth = false → pas de redirection sur pages publiques (utile pour debug)
+export async function getMe(forceAuth = true) {
     try {
-        const res = await authFetch('http://localhost:8081/api/auth/me');
-        return await res.json();
+        const res = await authFetch('http://localhost:8081/api/auth/me', {}, forceAuth);
+        const data = await res.json();
+        if (data && data.id) setUserId(data.id);
+        return data;
     } catch (err) {
-        console.error(err.message);
+        console.warn("Impossible de récupérer l'utilisateur :", err.message);
         return null;
     }
 }

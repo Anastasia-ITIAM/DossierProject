@@ -44,6 +44,9 @@
             <li class="list-group-item eco-box"><strong>Conducteur :</strong> <span id="trip-driver"></span></li>
             <li class="list-group-item eco-box"><strong>Véhicule :</strong> <span id="trip-vehicle"></span></li>
           </ul>
+
+          <!-- Conteneur pour le bouton Supprimer (invisible si pas conducteur) -->
+          <div id="delete-trip-container" class="text-center mt-3"></div>
         </div>
       </div>
 
@@ -58,15 +61,12 @@
       </div>
     </div>
 
-    <!-- Boutons -->
+    <!-- Boutons connexion / inscription -->
     <div id="auth-box" class="text-center mt-4">
       <div class="alert alert-info mb-4">Connectez-vous pour réserver ce trajet.</div>
       <a href="signIn.html" class="btn custom-btn mx-2">Se connecter</a>
       <a href="signUp.html" class="btn custom-btn mx-2">Créer un compte</a>
     </div>
-        <div class="text-center mt-4">
-          <a href="myTrips.html" class="btn custom-btn">← Retour à mes trajets</a>
-        </div>
 
     <!-- Modal participation -->
     <div class="modal fade" id="confirmParticipationModal" tabindex="-1" aria-labelledby="confirmParticipationModalLabel" aria-hidden="true">

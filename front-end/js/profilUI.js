@@ -1,5 +1,4 @@
 export function initProfilUI() {
-
     const profileImage = document.getElementById("profileImage");
     const profilePseudo = document.getElementById("profilePseudo");
     const profileRole = document.getElementById("profileRole");
@@ -20,9 +19,10 @@ export function initProfilUI() {
         ROLE_EMPLOYEE: "employé"
     };
 
+    // Définir quels boutons sont visibles pour chaque rôle
     const visibleByRole = {
-        ROLE_PASSENGER: ["driver"],
-        ROLE_PASSENGER_DRIVER: [],
+        ROLE_PASSENGER: ["driver"],                   // passager normal ne peut pas publier ni avoir de véhicules
+        ROLE_PASSENGER_DRIVER: ["publish", "myCars"], // chauffeur/passager peut publier et gérer ses véhicules
         ROLE_EMPLOYEE: ["employee"],
         ROLE_ADMIN: ["employee", "admin"]
     };
@@ -30,27 +30,21 @@ export function initProfilUI() {
     const buttons = {
         employee: document.getElementById("btnEmployee"),
         admin: document.getElementById("btnAdmin"),
-        driver: document.getElementById("btnDriver")
+        driver: document.getElementById("btnDriver"),
+        publish: document.getElementById("btnPublishTrip"), // bouton Publier un trajet
+        myCars: document.getElementById("btnMyCars")       // bouton Mes véhicules
     };
 
     // Bloquer l'accès à devenir chauffeur si profil incomplet
     if (buttons.driver) {
         buttons.driver.addEventListener("click", (event) => {
             const requiredFields = [
-                "email",
-                "pseudo",
-                "firstName",
-                "lastName",
-                "birthDate",
-                "postalAddress",
-                "phone"
+                "email", "pseudo", "firstName", "lastName", 
+                "birthDate", "postalAddress", "phone"
             ];
 
             const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
-
-            const incomplete = requiredFields.some(
-                field => !data[field] || data[field].trim() === ""
-            );
+            const incomplete = requiredFields.some(field => !data[field] || data[field].trim() === "");
 
             if (incomplete) {
                 event.preventDefault();
@@ -63,24 +57,27 @@ export function initProfilUI() {
 
     function refreshUI() {
         const data = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        const userRole = data.role || "ROLE_UNKNOWN"; // fallback si rôle absent
         console.log("Refresh UI avec ces données :", data);
-        console.log("Rôle actuel (data.role) :", data.role);
+        console.log("Rôle utilisateur :", userRole);
 
+        // Mettre à jour infos du profil
         if (profileImage) profileImage.src = data.profilePhotoUrl ? `http://localhost:8081${data.profilePhotoUrl}` : "";
         if (profilePseudo) profilePseudo.textContent = data.pseudo || "";
-        if (profileRole) profileRole.textContent = data.role ? roleLabels[data.role] || data.role : "";
+        if (profileRole) profileRole.textContent = roleLabels[userRole] || userRole;
         if (profileCredits) profileCredits.textContent = data.credits !== undefined ? data.credits : "";
 
-        // Masquer tous les boutons d'abord
+        // Masquer tous les boutons par défaut
         Object.values(buttons).forEach(btn => {
             if (btn) btn.style.setProperty("display", "none", "important");
         });
 
-        // Afficher uniquement ceux autorisés pour le rôle actuel
-        const allowed = visibleByRole[data.role] || [];
-        allowed.forEach(key => {
-            if (buttons[key]) buttons[key].style.setProperty("display", "inline-block", "important");
-        });
+        // Afficher uniquement les boutons autorisés pour ce rôle
+        if (visibleByRole[userRole]) {
+            visibleByRole[userRole].forEach(key => {
+                if (buttons[key]) buttons[key].style.setProperty("display", "inline-block", "important");
+            });
+        }
     }
 
     // Chargement initial
@@ -91,7 +88,7 @@ export function initProfilUI() {
         if (event.key === storageKey) refreshUI();
     });
 
-    // Écouter le nouvel événement déclenché après fetch serveur
+    // Écouter un éventuel fetch serveur
     window.addEventListener("profileDataReady", () => {
         refreshUI();
     });

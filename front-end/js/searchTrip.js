@@ -1,4 +1,5 @@
 export async function initSearchTrip() {
+
     const params = new URLSearchParams(window.location.search);
     const depart = params.get('depart')?.trim();
     const arrivee = params.get('arrivee')?.trim();
@@ -15,8 +16,6 @@ export async function initSearchTrip() {
     if (departInput) departInput.value = depart || '';
     if (arriveeInput) arriveeInput.value = arrivee || '';
     if (datetimeInput) datetimeInput.value = datetime || '';
-
-    resultsContainer.innerHTML = '<p class="text-center">Chargement des trajets...</p>';
 
     try {
         let url;

@@ -69,7 +69,7 @@ export function initSignUp() {
                 const loginResult = await login(email, password);
 
                 if (loginResult.status === 'ok') {
-                    safeAlert('Inscription et connexion réussies !');
+                safeAlert('Inscription et connexion réussies ! 🎉\nFélicitations, vous avez gagné 20 crédits pour votre inscription !');
                     window.location.href = '/pages/profil.html';
                 } else {
                     safeAlert('Inscription réussie, mais impossible de se connecter automatiquement. Veuillez vous connecter.');
