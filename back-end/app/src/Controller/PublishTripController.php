@@ -22,7 +22,7 @@ class PublishTripController extends AbstractController
     }
 
     // --------------------
-    // Ajouter un trajet (auth nécessaire)
+    // Ajouter un trajet
     // --------------------
     #[Route('/add', name: 'publish_trip', methods: ['POST'])]
     public function add(Request $request): JsonResponse
@@ -48,7 +48,7 @@ class PublishTripController extends AbstractController
             ->setAvailableSeats((int)($data['available_seats'] ?? 0))
             ->setPrice((int)($data['price'] ?? 0))
             ->setEcoFriendly((bool)($data['eco_friendly'] ?? false))
-            ->setStatus($data['status'] ?? 'published')
+            ->setStatus($data['status'] ?? 'open')
             ->setFinished(false)
             ->setParticipantValidation(false);
 
@@ -63,33 +63,13 @@ class PublishTripController extends AbstractController
     }
 
     // --------------------
-    // Lister les trajets de l'utilisateur (auth nécessaire)
-    // --------------------
-    #[Route('/list', name: 'list_trips', methods: ['GET'])]
-    public function list(): JsonResponse
-    {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
-        }
-
-        $trips = $this->em->getRepository(Trip::class)
-            ->findBy(['user' => $user], ['departure_date' => 'ASC', 'departure_time' => 'ASC']);
-
-        return new JsonResponse([
-            'success' => true,
-            'trips' => array_map([$this, 'formatTrip'], $trips)
-        ]);
-    }
-
-    // --------------------
-    // Lister tous les trajets publiés (page recherche initiale)
+    // Tous les trajets publiés (affichage initial)
     // --------------------
     #[Route('/all', name: 'all_trips', methods: ['GET'])]
     public function all(): JsonResponse
     {
         $trips = $this->em->getRepository(Trip::class)
-            ->findBy(['status' => 'published'], ['departure_date' => 'ASC', 'departure_time' => 'ASC']);
+            ->findBy(['status' => 'open'], ['departure_date' => 'ASC', 'departure_time' => 'ASC']);
 
         return new JsonResponse([
             'success' => true,
@@ -98,49 +78,31 @@ class PublishTripController extends AbstractController
     }
 
     // --------------------
-    // Recherche trajets (départ, arrivée, date) — publique
+    // Recherche trajets (départ, arrivée)
     // --------------------
     #[Route('/search', name: 'search_trips', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
         $depart = $request->query->get('depart');
         $arrivee = $request->query->get('arrivee');
-        $datetime = $request->query->get('datetime');
 
         $qb = $this->em->getRepository(Trip::class)->createQueryBuilder('t');
-        $qb->andWhere('t.status = :status')->setParameter('status', 'published');
+        $qb->andWhere('t.status = :status')->setParameter('status', 'open');
 
-        if ($depart || $arrivee) {
-            $orX = $qb->expr()->orX();
-            if ($depart) {
-                $orX->add($qb->expr()->like('t.departure_address', ':depart'));
-                $qb->setParameter('depart', '%' . $depart . '%');
-            }
-            if ($arrivee) {
-                $orX->add($qb->expr()->like('t.arrival_address', ':arrivee'));
-                $qb->setParameter('arrivee', '%' . $arrivee . '%');
-            }
-            $qb->andWhere($orX);
+        if ($depart) {
+            $qb->andWhere('LOWER(t.departure_address) LIKE :depart')
+               ->setParameter('depart', '%' . strtolower($depart) . '%');
         }
 
-        if ($datetime) {
-            try {
-                $dt = new \DateTime($datetime);
-                $qb->andWhere('t.departure_date >= :date')->setParameter('date', $dt);
-            } catch (\Exception $e) {
-                return new JsonResponse(['success' => false, 'message' => 'Date invalide'], 400);
-            }
+        if ($arrivee) {
+            $qb->andWhere('LOWER(t.arrival_address) LIKE :arrivee')
+               ->setParameter('arrivee', '%' . strtolower($arrivee) . '%');
         }
 
-        try {
-            $trips = $qb->orderBy('t.departure_date', 'ASC')
-                        ->addOrderBy('t.departure_time', 'ASC')
-                        ->getQuery()
-                        ->getResult();
-        } catch (\Exception $e) {
-            $this->get('logger')->error('Erreur search trips: '.$e->getMessage(), ['exception' => $e]);
-            return new JsonResponse(['success' => false, 'message' => 'Erreur serveur'], 500);
-        }
+        $trips = $qb->orderBy('t.departure_date', 'ASC')
+                    ->addOrderBy('t.departure_time', 'ASC')
+                    ->getQuery()
+                    ->getResult();
 
         return new JsonResponse([
             'success' => true,
@@ -149,29 +111,20 @@ class PublishTripController extends AbstractController
     }
 
     // --------------------
-    // Détails d'un trajet par ID
-    // --------------------
-    #[Route('/{id}', name: 'trip_details', methods: ['GET'])]
-    public function details(int $id): JsonResponse
-    {
-        $trip = $this->em->getRepository(Trip::class)->find($id);
-        if (!$trip) {
-            return new JsonResponse(['success' => false, 'message' => 'Trajet non trouvé'], 404);
-        }
-
-        return new JsonResponse([
-            'success' => true,
-            'trip' => $this->formatTrip($trip, true)
-        ]);
-    }
-
-    // --------------------
-    // Format commun d’un trajet
+    // Format d’un trajet (avec photo conducteur)
     // --------------------
     private function formatTrip(Trip $trip, bool $withDetails = false): array
     {
         $driver = $trip->getUser();
         $driverName = $driver ? $driver->getPseudo() : 'Inconnu';
+
+        // fallback photo
+        $driverPhoto = '/uploads/profiles/profile_default.png';
+        if ($driver && $driver->getProfilePhotoUrl()) {
+            // Extraire seulement le nom de fichier pour éviter le doublon de chemin
+            $filename = basename($driver->getProfilePhotoUrl());
+            $driverPhoto = '/uploads/profiles/' . $filename;
+        }
 
         $car = $this->em->getRepository(Car::class)->find($trip->getCarId());
         $vehicle = $car ? sprintf('%s %s (%s)', $car->getBrand(), $car->getModel(), $car->getColor()) : null;
@@ -180,6 +133,8 @@ class PublishTripController extends AbstractController
             'id' => $trip->getId(),
             'car_id' => $trip->getCarId(),
             'user_id' => $driver?->getId(),
+            'driver_name' => $driverName,
+            'driver_photo_url' => $driverPhoto,
             'departure_address' => $trip->getDepartureAddress(),
             'arrival_address' => $trip->getArrivalAddress(),
             'departure_date' => $trip->getDepartureDate()?->format('Y-m-d'),
@@ -191,12 +146,11 @@ class PublishTripController extends AbstractController
             'status' => $trip->getStatus(),
             'finished' => $trip->isFinished(),
             'participant_validation' => $trip->isParticipantValidation(),
-            'driver_name' => $driverName,
         ];
 
         if ($withDetails) {
             $data['vehicle'] = $vehicle;
-            $data['passengers'] = []; // à compléter plus tard
+            $data['passengers'] = [];
         }
 
         return $data;
