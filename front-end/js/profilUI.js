@@ -15,20 +15,15 @@ export function initProfilUI() {
     const roleLabels = {
         ROLE_PASSENGER: "passager",
         ROLE_PASSENGER_DRIVER: "chauffeur et passager",
-        ROLE_ADMIN: "administrateur",
-        ROLE_EMPLOYEE: "employé"
     };
 
     const visibleByRole = {
         ROLE_PASSENGER: ["driver"],
         ROLE_PASSENGER_DRIVER: ["publish", "myCars"],
-        ROLE_EMPLOYEE: ["employee"],
-        ROLE_ADMIN: ["employee", "admin"]
+
     };
 
     const buttons = {
-        employee: document.getElementById("btnEmployee"),
-        admin: document.getElementById("btnAdmin"),
         driver: document.getElementById("btnDriver"),
         publish: document.getElementById("btnPublishTrip"),
         myCars: document.getElementById("btnMyCars")
