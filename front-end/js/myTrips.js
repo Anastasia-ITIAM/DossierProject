@@ -2,10 +2,9 @@ import { authFetch } from './signIn.js';
 
 export async function initMyTrips() {
     const avenirTab = document.querySelector('#avenir .row');
-    const aValiderTab = document.querySelector('#a-valider .row');
     const passesTab = document.querySelector('#passes .row');
 
-    if (!avenirTab || !aValiderTab || !passesTab) return;
+    if (!avenirTab || !passesTab) return;
 
     try {
         // ✅ URL corrigée pour lister les trajets réservés
@@ -21,7 +20,6 @@ export async function initMyTrips() {
 
         // Vider les onglets
         avenirTab.innerHTML = '';
-        aValiderTab.innerHTML = '';
         passesTab.innerHTML = '';
 
         // Les trajets de l'utilisateur sont déjà filtrés côté backend
