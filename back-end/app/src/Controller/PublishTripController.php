@@ -81,34 +81,52 @@ class PublishTripController extends AbstractController
     // Recherche trajets (départ, arrivée)
     // --------------------
     #[Route('/search', name: 'search_trips', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
-    {
-        $depart = $request->query->get('depart');
-        $arrivee = $request->query->get('arrivee');
+public function search(Request $request): JsonResponse
+{
+    $depart = $request->query->get('depart');
+    $arrivee = $request->query->get('arrivee');
+    $datetime = $request->query->get('datetime');
 
-        $qb = $this->em->getRepository(Trip::class)->createQueryBuilder('t');
-        $qb->andWhere('t.status = :status')->setParameter('status', 'open');
+    $qb = $this->em->getRepository(Trip::class)->createQueryBuilder('t');
+    $qb->andWhere('t.status = :status')->setParameter('status', 'open');
 
+    if ($depart || $arrivee || $datetime) {
+        $orX = $qb->expr()->orX();
+
+        // Départ ou arrivée correspond à la saisie départ
         if ($depart) {
-            $qb->andWhere('LOWER(t.departure_address) LIKE :depart')
-               ->setParameter('depart', '%' . strtolower($depart) . '%');
+            $orX->add($qb->expr()->like('LOWER(t.departure_address)', ':depart'));
+            $orX->add($qb->expr()->like('LOWER(t.arrival_address)', ':depart'));
+            $qb->setParameter('depart', '%' . strtolower($depart) . '%');
         }
 
+        // Départ ou arrivée correspond à la saisie arrivée
         if ($arrivee) {
-            $qb->andWhere('LOWER(t.arrival_address) LIKE :arrivee')
-               ->setParameter('arrivee', '%' . strtolower($arrivee) . '%');
+            $orX->add($qb->expr()->like('LOWER(t.departure_address)', ':arrivee'));
+            $orX->add($qb->expr()->like('LOWER(t.arrival_address)', ':arrivee'));
+            $qb->setParameter('arrivee', '%' . strtolower($arrivee) . '%');
         }
 
-        $trips = $qb->orderBy('t.departure_date', 'ASC')
-                    ->addOrderBy('t.departure_time', 'ASC')
-                    ->getQuery()
-                    ->getResult();
+        // Correspondance exacte pour la date
+        if ($datetime) {
+            $orX->add($qb->expr()->eq('t.departure_date', ':datetime'));
+            $qb->setParameter('datetime', new \DateTime($datetime));
+        }
 
-        return new JsonResponse([
-            'success' => true,
-            'trips' => array_map([$this, 'formatTrip'], $trips)
-        ]);
+        $qb->andWhere($orX);
     }
+
+    $trips = $qb->orderBy('t.departure_date', 'ASC')
+                ->addOrderBy('t.departure_time', 'ASC')
+                ->getQuery()
+                ->getResult();
+
+    return new JsonResponse([
+        'success' => true,
+        'trips' => array_map([$this, 'formatTrip'], $trips),
+    ]);
+}
+
 
     // --------------------
     // Format d’un trajet (avec photo conducteur)
@@ -121,7 +139,6 @@ class PublishTripController extends AbstractController
         // fallback photo
         $driverPhoto = '/uploads/profiles/profile_default.png';
         if ($driver && $driver->getProfilePhotoUrl()) {
-            // Extraire seulement le nom de fichier pour éviter le doublon de chemin
             $filename = basename($driver->getProfilePhotoUrl());
             $driverPhoto = '/uploads/profiles/' . $filename;
         }

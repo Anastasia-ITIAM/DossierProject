@@ -7,6 +7,15 @@ export async function initSearchTrip() {
     const resultsContainer = document.querySelector('#resultsContainer');
     if (!resultsContainer) return;
 
+    const departInput = document.querySelector('#depart');
+    const arriveeInput = document.querySelector('#arrivee');
+    const datetimeInput = document.querySelector('#datetime');
+
+    // Préremplir les champs de recherche
+    if (departInput) departInput.value = depart || '';
+    if (arriveeInput) arriveeInput.value = arrivee || '';
+    if (datetimeInput) datetimeInput.value = datetime || '';
+
     resultsContainer.innerHTML = '<p class="text-center">Chargement des trajets...</p>';
 
     try {
@@ -23,31 +32,43 @@ export async function initSearchTrip() {
             url = 'http://localhost:8081/api/trip/all';
         }
 
-        console.log('URL fetch:', url);
-
         const resp = await fetch(url);
         if (!resp.ok) throw new Error(`Erreur serveur : ${resp.status}`);
 
         const result = await resp.json();
-        console.log('RESULT FRONTEND:', result);
 
         if (!result.success || !Array.isArray(result.trips) || result.trips.length === 0) {
             resultsContainer.innerHTML = '<p class="text-center text-danger">Aucun trajet trouvé.</p>';
             return;
         }
 
+        // Vérifier si un trajet correspond **exactement** à tous les critères
+        let exactMatch = false;
+        if (depart && arrivee && datetime) {
+            exactMatch = result.trips.some(trip =>
+                trip.departure_address.toLowerCase() === depart.toLowerCase() &&
+                trip.arrival_address.toLowerCase() === arrivee.toLowerCase() &&
+                trip.departure_date === datetime
+            );
+        }
+
+        // Alerte si pas de match exact mais trajets similaires
+        if (!exactMatch && (depart || arrivee || datetime)) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-warning text-center';
+            alertDiv.innerHTML = `
+                Aucun trajet correspondant exactement à votre recherche.<br>
+                Voici des trajets proposés qui correspondent partiellement à vos critères.
+            `;
+            resultsContainer.appendChild(alertDiv);
+        }
+
         // Mélanger les trajets pour affichage aléatoire
         const trips = result.trips.sort(() => Math.random() - 0.5);
 
-        resultsContainer.innerHTML = '';
         trips.forEach(trip => {
-            // Définir la photo du conducteur avec fallback
             let photoUrl = trip.driver_photo_url || '/uploads/profiles/profile_default.png';
-
-            // S'assurer que l'URL commence par '/'
-            if (!photoUrl.startsWith('/')) {
-                photoUrl = '/' + photoUrl;
-            }
+            if (!photoUrl.startsWith('/')) photoUrl = '/' + photoUrl;
 
             const card = document.createElement('div');
             card.className = 'col-md-4 mb-4';
