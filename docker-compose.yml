@@ -39,7 +39,7 @@ services:
     networks:
       - app
 
-  # DATABASE (MySQL)
+  # BASE DE DONNÉES RELATIONNELLE (MySQL)
   db:
     image: mysql:8.0
     container_name: mysql_db
@@ -71,9 +71,41 @@ services:
     networks:
       - app
 
+  # BASE DE DONNÉES NON RELATIONNELLE (MongoDB)
+  mongo:
+    image: mongo:6.0
+    container_name: ecoride_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_user
+      MONGO_INITDB_ROOT_PASSWORD: mongo_password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app
+
+  # INTERFACE WEB POUR MONGODB (Mongo Express)
+  mongo-express:
+    image: mongo-express:1.0.0-alpha
+    container_name: ecoride_mongo_express
+    restart: always
+    ports:
+      - "8083:8081" # accès via http://localhost:8083
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mongo_user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongo_password
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - mongo
+    networks:
+      - app
+
 networks:
   app:
     driver: bridge
 
 volumes:
   db_data:
+  mongo_data:

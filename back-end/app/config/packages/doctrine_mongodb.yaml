@@ -1,0 +1,22 @@
+# config/packages/doctrine_mongodb.yaml
+doctrine_mongodb:
+    connections:
+        default:
+            # Connexion à MongoDB via la variable d'environnement
+            server: '%env(resolve:MONGODB_URL)%'
+            options: {}
+
+    default_database: ecoride_mongo
+
+    document_managers:
+        default:
+            # Désactive l’auto-mapping pour éviter les conflits
+            auto_mapping: false
+
+            # Mapping explicite pour notre namespace App\Document
+            mappings:
+                App:
+                    type: attribute          # ✅ utilise les attributs PHP 8 #[MongoDB\...]
+                    dir: '%kernel.project_dir%/src/Document'
+                    prefix: 'App\Document'
+                    is_bundle: false
