@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Entity\Car;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,8 +12,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// Ajout de l'entité Car
-use App\Entity\Car;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -77,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $status = 'active';
 
-    #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    //#[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $cars;
 
     public function __construct()
