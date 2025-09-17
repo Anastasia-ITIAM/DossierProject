@@ -12,6 +12,9 @@ import { initPublishTrip } from './publishTrip.js';
 import { initMyTrips } from './myTrips.js';
 import { initTripDetails } from './tripDetails.js';
 import { initSearchTrip } from './searchTrip.js';
+import { initTripReview } from './tripReview.js';
+
+
 
 // Mapping page class -> init function
 const pageInits = {
@@ -20,12 +23,15 @@ const pageInits = {
     'driver-page': initCarPage,
     'publishTrip-page': initPublishTrip,
     'trips-page': initMyTrips,
-    'trip-details-page': initTripDetails,
     'trip-search-page': initSearchTrip,
     'profil-page': () => {
         initProfil();
         initProfilUI();
     },
+    'trip-details-page': () => {
+    initTripDetails();
+    initTripReview();
+}
 };
 
 // Pages qui nécessitent un utilisateur connecté

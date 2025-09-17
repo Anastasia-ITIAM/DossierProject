@@ -76,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $status = 'active';
 
-    //#[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private Collection $cars;
 
     public function __construct()
