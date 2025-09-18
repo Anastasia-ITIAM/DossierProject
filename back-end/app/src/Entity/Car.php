@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CarRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 class Car
@@ -32,18 +33,23 @@ class Car
     #[ORM\Column(length: 255)]
     private ?string $fuelType = null;
 
-    #[ORM\Column]
-    private ?int $availableSeats = null;
+    #[ORM\Column(options: ['default' => 1])]
+    private ?int $availableSeats = 1;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $customPreferences = null;
 
     #[ORM\ManyToOne(inversedBy: 'cars')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    // === Getters & Setters ===
+    // === CONSTRUCTEUR ===
+    public function __construct()
+    {
+        $this->availableSeats = 1; // valeur par défaut
+    }
 
+    // === GETTERS & SETTERS ===
     public function getId(): ?int { return $this->id; }
 
     public function getLicensePlate(): ?string { return $this->licensePlate; }

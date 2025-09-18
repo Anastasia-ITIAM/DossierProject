@@ -100,7 +100,7 @@ class TripController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
-            'trip' => $this->formatTrip($trip, true) // true pour inclure détails et passagers
+            'trip' => $this->formatTrip($trip, true)
         ]);
     }
 
@@ -109,22 +109,22 @@ class TripController extends AbstractController
     // --------------------
     private function formatTrip(Trip $trip, bool $withDetails = false): array
     {
-        $driver = $trip->getUser();
+        $driver = $trip->getDriver();
         $driverName = $driver ? $driver->getPseudo() : 'Inconnu';
 
-        // fallback photo
+        // Photo conducteur par défaut
         $driverPhoto = '/uploads/profiles/profile_default.png';
         if ($driver && $driver->getProfilePhotoUrl()) {
             $filename = basename($driver->getProfilePhotoUrl());
             $driverPhoto = '/uploads/profiles/' . $filename;
         }
 
-        $car = $this->em->getRepository(Car::class)->find($trip->getCarId());
+        $car = $trip->getCar();
         $vehicle = $car ? sprintf('%s %s (%s)', $car->getBrand(), $car->getModel(), $car->getColor()) : null;
 
         $data = [
             'id' => $trip->getId(),
-            'car_id' => $trip->getCarId(),
+            'car_id' => $car?->getId(),
             'user_id' => $driver?->getId(),
             'driver_name' => $driverName,
             'driver_photo_url' => $driverPhoto,
@@ -144,7 +144,6 @@ class TripController extends AbstractController
         if ($withDetails) {
             $data['vehicle'] = $vehicle;
 
-            // Ajout des passagers
             $passengers = [];
             foreach ($trip->getPassengers() as $passenger) {
                 $passengers[] = [
