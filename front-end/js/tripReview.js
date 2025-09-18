@@ -1,25 +1,30 @@
 // tripReview.js
+import { authFetch } from './signIn.js';
+
 export function initTripReview() {
     const reviewsContainer = document.getElementById("trip-reviews");
     const reviewForm = document.getElementById("trip-review-form");
 
-    // Vérifie si la page contient la section d’avis
-    if (!reviewsContainer) {
-        console.warn("⚠️ Aucun conteneur d'avis trouvé (#trip-reviews)");
-        return;
-    }
+    if (!reviewsContainer) return;
 
     // Récupère automatiquement l’ID du trajet depuis body[data-trip-id]
     const tripId = document.body.dataset.tripId;
     if (!tripId) {
-        console.error("❌ Impossible de récupérer tripId depuis body[data-trip-id]");
+        console.error("Impossible de récupérer tripId depuis body[data-trip-id]");
         return;
     }
 
     // --- Charger et afficher les avis ---
     async function loadReviews() {
         try {
-            const res = await fetch(`http://localhost:8081/api/trip-review/trip/${tripId}`);
+            // ⚡ Assurez-vous que le port correspond à votre backend Symfony
+            const res = await authFetch(`http://localhost:8081/api/trip/${tripId}/reviews`, { method: 'GET' }, true);
+
+            if (res.status === 404) {
+                reviewsContainer.innerHTML = `<li class="list-group-item">Aucun avis disponible (endpoint non trouvé).</li>`;
+                return;
+            }
+
             if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
 
             const json = await res.json();
@@ -32,8 +37,8 @@ export function initTripReview() {
             reviewsContainer.innerHTML = json.reviews.map(r => `
                 <li class="list-group-item eco-box">
                     <strong>Utilisateur ${r.userId}</strong><br>
-                    ${r.comment} <br>
-                    ⭐ ${r.rating}/5 <br>
+                    ${r.comment}<br>
+                    ⭐ ${r.rating}/5<br>
                     <small>${r.createdAt}</small>
                 </li>
             `).join("");
@@ -48,13 +53,8 @@ export function initTripReview() {
         reviewForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const commentInput = document.getElementById("review-comment");
-            const ratingInput = document.getElementById("review-rating");
-
-            if (!commentInput || !ratingInput) return;
-
-            const comment = commentInput.value.trim();
-            const rating = parseInt(ratingInput.value, 10);
+            const comment = document.getElementById("review-comment").value.trim();
+            const rating = parseInt(document.getElementById("review-rating").value, 10);
 
             if (!window.currentUserId) {
                 alert("Vous devez être connecté pour laisser un avis.");
@@ -67,18 +67,17 @@ export function initTripReview() {
             }
 
             try {
-                const res = await fetch(`/api/trip-review/add`, {
+                const res = await authFetch(`http://localhost:8081/api/trip/${tripId}/reviews`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        tripId,
+                        userId: window.currentUserId,
                         comment,
                         rating
                     })
-                });
+                }, true);
 
                 const json = await res.json();
-
                 if (json.success) {
                     reviewForm.reset();
                     await loadReviews(); // Recharge les avis après ajout
