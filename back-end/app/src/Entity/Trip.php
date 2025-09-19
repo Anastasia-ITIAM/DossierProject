@@ -85,6 +85,10 @@ class Trip
     public function getDriver(): ?User { return $this->driver; }
     public function setDriver(?User $driver): static { $this->driver = $driver; return $this; }
 
+    // 🔹 Alias pour compatibilité avec setUser / getUser
+    public function getUser(): ?User { return $this->getDriver(); }
+    public function setUser(?User $user): static { return $this->setDriver($user); }
+
     public function getDepartureAddress(): ?string { return $this->departure_address; }
     public function setDepartureAddress(string $departure_address): static { $this->departure_address = $departure_address; return $this; }
 

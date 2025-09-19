@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Trip;
 use App\Entity\User;
+use App\Entity\Car;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +37,7 @@ class PublishTripController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Car ID requis'], 400);
         }
 
-        // Vérifier que l'utilisateur a au moins 2 crédits
+        // Vérifier crédits
         if ($user->getCredits() < 2) {
             return new JsonResponse([
                 'success' => false,
@@ -44,22 +45,27 @@ class PublishTripController extends AbstractController
             ], 400);
         }
 
+        // Récupérer l'objet Car depuis la BDD
+        $car = $this->em->getRepository(Car::class)->find((int)$data['car_id']);
+        if (!$car) {
+            return new JsonResponse(['success' => false, 'message' => 'Voiture introuvable'], 404);
+        }
+
         try {
-            // Créer le trajet
             $trip = new Trip();
-            $trip->setUser($user)
-                ->setCarId((int)$data['car_id'])
-                ->setDepartureAddress($data['departure_address'] ?? '')
-                ->setArrivalAddress($data['arrival_address'] ?? '')
-                ->setDepartureDate(new \DateTime($data['departure_date'] ?? 'now'))
-                ->setDepartureTime(new \DateTime($data['departure_time'] ?? 'now'))
-                ->setArrivalTime(new \DateTime($data['arrival_time'] ?? 'now'))
-                ->setAvailableSeats((int)($data['available_seats'] ?? 0))
-                ->setPrice((int)($data['price'] ?? 0))
-                ->setEcoFriendly((bool)($data['eco_friendly'] ?? false))
-                ->setStatus($data['status'] ?? 'open')
-                ->setFinished(false)
-                ->setParticipantValidation(false);
+            $trip->setDriver($user) // ou $trip->setUser($user) si tu as ajouté l’alias
+                 ->setCar($car)
+                 ->setDepartureAddress($data['departure_address'] ?? '')
+                 ->setArrivalAddress($data['arrival_address'] ?? '')
+                 ->setDepartureDate(new \DateTime($data['departure_date'] ?? 'now'))
+                 ->setDepartureTime(new \DateTime($data['departure_time'] ?? '00:00'))
+                 ->setArrivalTime(new \DateTime($data['arrival_time'] ?? '00:00'))
+                 ->setAvailableSeats((int)($data['available_seats'] ?? 0))
+                 ->setPrice((int)($data['price'] ?? 0))
+                 ->setEcoFriendly((bool)($data['eco_friendly'] ?? false))
+                 ->setStatus($data['status'] ?? 'open')
+                 ->setFinished(false)
+                 ->setParticipantValidation(false);
 
             $this->em->persist($trip);
 
@@ -73,7 +79,7 @@ class PublishTripController extends AbstractController
                 'success' => true,
                 'message' => 'Trajet publié avec succès',
                 'trip_id' => $trip->getId(),
-                'credits' => $user->getCredits() // renvoyer le nouveau solde
+                'credits' => $user->getCredits()
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -99,15 +105,14 @@ class PublishTripController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Trajet introuvable.'], 404);
         }
 
-        if ($trip->getUser()->getId() !== $user->getId()) {
+        if ($trip->getDriver()->getId() !== $user->getId()) { // ou getUser() si alias
             return new JsonResponse(['success' => false, 'message' => 'Accès refusé.'], 403);
         }
 
         try {
-            // Supprimer le trajet
             $this->em->remove($trip);
 
-            // Rembourser les 2 crédits
+            // Rembourser 2 crédits
             $user->setCredits($user->getCredits() + 2);
             $this->em->persist($user);
 
@@ -116,7 +121,7 @@ class PublishTripController extends AbstractController
             return new JsonResponse([
                 'success' => true,
                 'message' => 'Trajet supprimé avec succès. Vos crédits ont été remboursés.',
-                'credits' => $user->getCredits() // renvoyer le nouveau solde
+                'credits' => $user->getCredits()
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([

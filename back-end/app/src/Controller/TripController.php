@@ -105,14 +105,45 @@ class TripController extends AbstractController
     }
 
     // --------------------
+    // Lister les trajets réservés par l’utilisateur (chauffeur ou passager)
+    // --------------------
+    #[Route('/reservation/list', name: 'reservation_list', methods: ['GET'])]
+    public function reservationList(): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur non connecté.'], 401);
+        }
+
+        try {
+            $qb = $this->em->getRepository(Trip::class)->createQueryBuilder('t')
+                ->leftJoin('t.passengers', 'p')
+                ->where('t.driver = :user OR p.id = :user')
+                ->setParameter('user', $user->getId())
+                ->orderBy('t.departure_date', 'ASC')
+                ->addOrderBy('t.departure_time', 'ASC');
+
+            $trips = $qb->getQuery()->getResult();
+
+            return new JsonResponse([
+                'success' => true,
+                'trips' => array_map([$this, 'formatTrip'], $trips)
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Erreur récupération trajets : ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // --------------------
     // Format d’un trajet (avec photo conducteur et détails si demandé)
     // --------------------
     private function formatTrip(Trip $trip, bool $withDetails = false): array
     {
         $driver = $trip->getDriver();
         $driverName = $driver ? $driver->getPseudo() : 'Inconnu';
-
-        // Photo conducteur par défaut
         $driverPhoto = '/uploads/profiles/profile_default.png';
         if ($driver && $driver->getProfilePhotoUrl()) {
             $filename = basename($driver->getProfilePhotoUrl());

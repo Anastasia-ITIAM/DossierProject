@@ -9,7 +9,15 @@ async function populateUserCars() {
 
     try {
         const resp = await authFetch('http://localhost:8081/api/car/list', { method: 'GET' });
-        const data = await resp.json();
+        const text = await resp.text(); // lire brut
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch {
+            console.error("[PublishTrip] Réponse non JSON (voitures):", text);
+            return;
+        }
 
         if (resp.ok && data.success && Array.isArray(data.cars)) {
             select.innerHTML = '<option value="">-- Sélectionner --</option>';
@@ -77,7 +85,16 @@ function setupPublishTripForm() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            const result = await resp.json();
+
+            const text = await resp.text();
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch {
+                console.error("[PublishTrip] Réponse non JSON (publication):", text);
+                alert("Le serveur n'a pas renvoyé un JSON valide. Regarde la console.");
+                return;
+            }
 
             if (!resp.ok || !result.success) {
                 alert('Erreur publication : ' + (result.message || JSON.stringify(result)));
@@ -113,7 +130,16 @@ function setupDeleteTripButton(tripId) {
 
         try {
             const delResp = await authFetch(`http://localhost:8081/api/trip/delete/${tripId}`, { method: 'DELETE' });
-            const delResult = await delResp.json();
+            const text = await delResp.text();
+            let delResult;
+
+            try {
+                delResult = JSON.parse(text);
+            } catch {
+                console.error("[PublishTrip] Réponse non JSON (suppression):", text);
+                alert("Le serveur n'a pas renvoyé un JSON valide. Regarde la console.");
+                return;
+            }
 
             if (delResult.success) {
                 alert('Trajet supprimé avec succès.');
