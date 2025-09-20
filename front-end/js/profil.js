@@ -46,12 +46,12 @@ export function initProfil() {
             const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
             const profileImage = document.getElementById("profileImage");
 
-            // Affiche la photo si déjà stockée
-            if (profileImage && storedData.profilePhotoUrl) {
-                profileImage.src = `http://localhost:8081${storedData.profilePhotoUrl}`;
+            // 🔹 Étape 1 : si données locales -> afficher direct
+            if (Object.keys(storedData).length > 0) {
+                window.dispatchEvent(new CustomEvent("profileDataReady", { detail: storedData }));
             }
 
-            // Récupère les données depuis le serveur
+            // 🔹 Étape 2 : toujours récupérer les données serveur
             const res = await fetch(`http://localhost:8081/api/user/${userId}`);
             const result = await res.json();
 
@@ -70,12 +70,14 @@ export function initProfil() {
             }
 
             if (profileImage && userData.profilePhotoUrl) {
-                profileImage.src = `http://localhost:8081${userData.profilePhotoUrl}`;
+                profileImage.src = userData.profilePhotoUrl.startsWith("http")
+                    ? userData.profilePhotoUrl
+                    : `http://localhost:8081${userData.profilePhotoUrl}`;
             }
 
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
 
-            // Déclenchement de l'événement pour mettre à jour l'UI
+            // 🔹 Étape 3 : notifier l’UI avec les données fraîches
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: userData }));
 
         } catch (err) {
@@ -122,7 +124,9 @@ export function initProfil() {
             }
 
             if (profileImage && result.user.profilePhotoUrl) {
-                profileImage.src = `http://localhost:8081${result.user.profilePhotoUrl}`;
+                profileImage.src = result.user.profilePhotoUrl.startsWith("http")
+                    ? result.user.profilePhotoUrl
+                    : `http://localhost:8081${result.user.profilePhotoUrl}`;
                 updatedData.profilePhotoUrl = result.user.profilePhotoUrl;
             }
 

@@ -1,19 +1,25 @@
 ###> symfony/framework-bundle ###
+# Environnement local
 /.env.local
 /.env.local.php
 /.env.*.local
+
+# Secrets prod
 /config/secrets/prod/prod.decrypt.private.php
+
+# Fichiers publics générés et caches
 /public/bundles/
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
+# Clés JWT privées/public
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
 ###> Go ###
-# binaires compilés
+# Binaires compilés
 *.exe
 *.exe~
 *.dll
@@ -22,15 +28,23 @@
 *.test
 *.out
 
-# dossiers compilés
+# Dossiers compilés
 /bin/
 /build/
 /dist/
 ###< Go ###
 
 ###> Docker ###
+# Config / caches locaux
 .docker
 docker-compose.override.yml
+
+# Environnements locaux
+.env.local
+.env.local.php
+.env.*.local
+
+# Toute variable d'environnement temporaire
 *.env
 *.env.*
 ###< Docker ###

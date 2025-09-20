@@ -20,7 +20,6 @@ export function initProfilUI() {
     const visibleByRole = {
         ROLE_PASSENGER: ["driver"],
         ROLE_PASSENGER_DRIVER: ["publish", "myCars"],
-
     };
 
     const buttons = {
@@ -37,7 +36,7 @@ export function initProfilUI() {
             const incomplete = requiredFields.some(field => !data[field] || data[field].trim() === "");
             if (incomplete) {
                 event.preventDefault();
-                alert("Vous devez compléter tous les champs de votre profil avant de devenir chauffeur·euse!");
+                alert("Vous devez compléter tous les champs de votre profil avant de devenir chauffeur·euse !");
                 window.location.href = "profil.html";
             }
         });
@@ -51,7 +50,13 @@ export function initProfilUI() {
         const userRole = data.role || "ROLE_UNKNOWN";
 
         // Photo et pseudo
-        if (profileImage) profileImage.src = data.profilePhotoUrl ? `http://localhost:8081${data.profilePhotoUrl}` : "";
+        if (profileImage) {
+            profileImage.src = data.profilePhotoUrl 
+                ? (data.profilePhotoUrl.startsWith("http") 
+                    ? data.profilePhotoUrl 
+                    : `http://localhost:8081${data.profilePhotoUrl}`) 
+                : "";
+        }
         if (profilePseudo) profilePseudo.textContent = data.pseudo || "";
         if (profileRole) profileRole.textContent = roleLabels[userRole] || userRole;
 
@@ -75,19 +80,21 @@ export function initProfilUI() {
         }
     }
 
-    // Chargement initial
-    refreshUI();
+    // ------------------------
+    // IMPORTANT : ne pas rafraîchir tout de suite (sinon données vides)
+    // ------------------------
 
-    // Événement cross-tab pour mise à jour si sessionStorage change
-    window.addEventListener("storage", (event) => {
-        if (event.key === storageKey) refreshUI();
-    });
-
-    // Écouter les mises à jour de crédits ou profil depuis d'autres modules (ex: PublishTrip ou TripDetails)
+    // Quand d’autres modules (initProfil) finissent de charger le user
     window.addEventListener("profileDataReady", (e) => {
         if (e.detail && typeof e.detail === "object") {
             sessionStorage.setItem(storageKey, JSON.stringify(e.detail));
-            refreshUI(e.detail);
+            refreshUI(e.detail); // UI mise à jour immédiatement
         }
     });
+
+    // Si jamais on a déjà des données stockées (cas d’un rechargement)
+    const cached = JSON.parse(sessionStorage.getItem(storageKey));
+    if (cached && cached.pseudo) {
+        refreshUI(cached);
+    }
 }
