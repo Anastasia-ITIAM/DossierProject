@@ -1,113 +1,55 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  # FRONT-END
-  frontend:
-    build:
-      context: ./front-end
-      dockerfile: Dockerfile
+  php:
+    build: .
     ports:
-      - "8080:80"
-    volumes:
-      - ./front-end:/usr/share/nginx/html:ro
-      - ./front-end/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - backend-nginx
-    networks:
-      - app
-
-  # BACKEND PHP (Symfony)
-  backend-php:
-    build:
-      context: ./back-end
-      dockerfile: Dockerfile
-    volumes:
-      - ./back-end/app:/var/www/html
+      - "8000:9000" # Symfony accessible via Nginx ou Symfony CLI
     environment:
-      APP_ENV: dev
-    networks:
-      - app
-
-  # BACKEND NGINX
-  backend-nginx:
-    image: nginx:alpine
+      APP_ENV: prod
+      DATABASE_URL: ${DATABASE_URL}
+      MONGODB_URL: ${MONGODB_URL}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
     volumes:
-      - ./back-end/app:/var/www/html:ro
-      - ./back-end/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    ports:
-      - "8081:80"
+      - .:/var/www/html
     depends_on:
-      - backend-php
-    networks:
-      - app
+      - mysql_db
+      - mongo
 
-  # BASE DE DONNÉES RELATIONNELLE (MySQL)
-  db:
+  mysql_db:
     image: mysql:8.0
-    container_name: mysql_db
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ecoride
+      MYSQL_USER: anastasia
+      MYSQL_PASSWORD: OneLove24!
     ports:
-      - "3306:3306"
+      - "3306:3306"  # Accès direct local
     volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - app
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
-  # PHPMYADMIN
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: myadmin
-    restart: always
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-    ports:
-      - "8082:80"
-    depends_on:
-      - db
-    networks:
-      - app
-
-  # BASE DE DONNÉES NON RELATIONNELLE (MongoDB)
   mongo:
     image: mongo:6.0
-    container_name: ecoride_mongo
-    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: mongo_user
+      MONGO_INITDB_ROOT_PASSWORD: mongo_password
+      MONGO_DATABASE: ecoride_mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - app
-
-  # INTERFACE WEB POUR MONGODB (Mongo Express)
-  mongo-express:
-    image: mongo-express:1.0.0-alpha
-    container_name: ecoride_mongo_express
-    restart: always
-    ports:
-      - "8083:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      ME_CONFIG_MONGODB_SERVER: mongo
-    depends_on:
-      - mongo
-    networks:
-      - app
-
-networks:
-  app:
-    driver: bridge
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
 volumes:
-  db_data:
+  mysql_data:
   mongo_data:
