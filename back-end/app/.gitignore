@@ -34,17 +34,9 @@
 /dist/
 ###< Go ###
 
-###> Docker ###
-# Config / caches locaux
-.docker
-docker-compose.override.yml
-
 # Environnements locaux
 .env.local
 .env.local.php
 .env.*.local
 
-# Toute variable d'environnement temporaire
-*.env
-*.env.*
-###< Docker ###
+
