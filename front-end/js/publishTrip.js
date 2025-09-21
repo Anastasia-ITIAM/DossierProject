@@ -1,15 +1,13 @@
 import { authFetch } from './signIn.js';
 
-// ------------------------
 // Récupérer et remplir la liste des voitures de l'utilisateur
-// ------------------------
 async function populateUserCars() {
     const select = document.getElementById('vehicule_id');
     if (!select) return;
 
     try {
         const resp = await authFetch('http://localhost:8081/api/car/list', { method: 'GET' });
-        const text = await resp.text(); // lire brut
+        const text = await resp.text();
         let data;
 
         try {
@@ -33,9 +31,7 @@ async function populateUserCars() {
     }
 }
 
-// ------------------------
 // Mise à jour des crédits locaux et UI
-// ------------------------
 function updateCredits(amount) {
     const userId = window.currentUserId;
     const storageKey = `userProfile_${userId}`;
@@ -45,9 +41,7 @@ function updateCredits(amount) {
     window.dispatchEvent(new CustomEvent("profileDataReady", { detail: currentData }));
 }
 
-// ------------------------
 // Formulaire de publication de trajet
-// ------------------------
 function setupPublishTripForm() {
     const form = document.getElementById('publish_trip');
     if (!form) return;
@@ -114,9 +108,7 @@ function setupPublishTripForm() {
     });
 }
 
-// ------------------------
 // Bouton suppression trajet
-// ------------------------
 function setupDeleteTripButton(tripId) {
     const deleteContainer = document.querySelector('#delete-trip-container');
     if (!deleteContainer) return;
@@ -160,9 +152,7 @@ function setupDeleteTripButton(tripId) {
     deleteContainer.appendChild(deleteBtn);
 }
 
-// ------------------------
 // Initialisation
-// ------------------------
 export async function initPublishTrip(tripId = null) {
     await populateUserCars();
     setupPublishTripForm();

@@ -1,8 +1,8 @@
 import { login } from './signIn.js';
 
-// --- Utilitaires sécurité ---
+// Utilitaires sécurité
 function sanitizeInput(input) {
-    return input.replace(/[<>]/g, ""); // supprime balises HTML
+    return input.replace(/[<>]/g, "");
 }
 
 function safeAlert(message) {
@@ -13,7 +13,7 @@ function safeAlert(message) {
 
 export function initSignUp() {
 
-    // --- Validation front ---
+    // Validation front
     function validateEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }

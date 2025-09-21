@@ -11,7 +11,7 @@ export async function initTripDetails() {
         return;
     }
 
-    // --- Mettre à jour crédits localement ---
+    // Mettre à jour crédits localement 
     function updateCredits(amount) {
         const storageKey = `userProfile_${loggedUserId}`;
         const currentData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
@@ -33,10 +33,10 @@ export async function initTripDetails() {
 
         const trip = result.trip;
 
-        // --- Injection automatique pour TripReview ---
+        //  Injection automatique pour TripReview 
         document.body.dataset.tripId = trip.id;
 
-        // --- Affichage des informations du trajet ---
+        // Affichage des informations du trajet
         const setText = (selector, value) => {
             const el = document.querySelector(selector);
             if (el) el.textContent = value ?? '';
@@ -52,7 +52,7 @@ export async function initTripDetails() {
         setText('#trip-eco', trip.eco_friendly ? 'Oui ♻️' : 'Non 🚗');
         setText('#trip-vehicle', trip.vehicle ?? 'Non renseigné');
 
-        // --- Liste des passagers ---
+        //  Liste des passagers 
         const passengersList = document.querySelector('#trip-passengers');
         function renderPassengers(passengers) {
             if (!passengersList) return;
@@ -66,11 +66,11 @@ export async function initTripDetails() {
         }
         renderPassengers(trip.passengers);
 
-        // --- Masquer authBox ---
+        //  Masquer authBox 
         const authBox = document.querySelector('#auth-box');
         if (authBox) authBox.style.display = 'none';
 
-        // --- Vérifier si trajet passé ---
+        //  Vérifier si trajet passé 
         const depDateTime = new Date(`${trip.departure_date}T${trip.departure_time || '00:00'}`);
         const now = new Date();
         if (depDateTime < now) {
@@ -81,7 +81,7 @@ export async function initTripDetails() {
             return;
         }
 
-        // --- Actions utilisateur ---
+        //  Actions utilisateur
         const isPassenger = trip.passengers?.some(p => p.id === loggedUserId);
         const actionContainer = document.createElement('div');
         actionContainer.className = 'text-center mt-4';
@@ -89,7 +89,7 @@ export async function initTripDetails() {
 
         const tripPrice = trip.price || 0;
 
-        // --- Réserver ---
+        //  Réserver
         if (trip.user_id !== loggedUserId && !isPassenger) {
             const reserveBtn = document.createElement('button');
             reserveBtn.className = 'btn custom-btn';
@@ -131,7 +131,7 @@ export async function initTripDetails() {
             actionContainer.appendChild(reserveBtn);
         }
 
-        // --- Annuler ---
+        // Annuler
         if (isPassenger) {
             const cancelBtn = document.createElement('button');
             cancelBtn.className = 'btn btn-danger mt-3';
@@ -163,7 +163,7 @@ export async function initTripDetails() {
             actionContainer.appendChild(cancelBtn);
         }
 
-        // --- Supprimer si conducteur ---
+        // Supprimer si conducteur
         if (trip.user_id === loggedUserId) {
             const deleteContainer = document.querySelector('#delete-trip-container');
             if (deleteContainer) {

@@ -13,7 +13,7 @@ export async function initTripReview() {
     let passengerIds = [];
     let tripDateTime = null;
 
-    // ⚡ Récupérer les détails du trajet
+    // Récupérer les détails du trajet
     try {
         const tripRes = await authFetch(`http://localhost:8081/api/trip/${tripId}`, { method: 'GET' }, true);
         if (!tripRes.ok) throw new Error(`Erreur HTTP : ${tripRes.status}`);
@@ -37,7 +37,7 @@ export async function initTripReview() {
     const isPassenger = currentUserId && passengerIds.includes(currentUserId);
     const hasTripPassed = tripDateTime && new Date() > tripDateTime;
 
-    // --- Charger et afficher les avis ---
+    // Charger et afficher les avis 
     async function loadReviews() {
         try {
             const res = await authFetch(`http://localhost:8081/api/trip/${tripId}/reviews`, { method: 'GET' }, true);
@@ -56,7 +56,7 @@ export async function initTripReview() {
                 `).join("")
                 : `<li class="list-group-item">Aucun avis disponible.</li>`;
 
-            // --- Vérifier si l'utilisateur a déjà laissé un avis ---
+            //  Vérifier si l'utilisateur a déjà laissé un avis
             if (reviewForm && currentUserId) {
                 const alreadyReviewed = reviews.some(r => r.userId === currentUserId);
                 if (alreadyReviewed) reviewForm.style.display = 'none';
@@ -68,7 +68,7 @@ export async function initTripReview() {
         }
     }
 
-    // --- Gestion du formulaire ---
+    // Gestion du formulaire
     if (reviewForm) {
         reviewForm.style.display = 'none';
         if (!isDriver && isPassenger && hasTripPassed) {
@@ -98,7 +98,7 @@ export async function initTripReview() {
                         // Masquer le formulaire définitivement après ajout
                         reviewForm.style.display = 'none';
                         reviewForm.querySelector("button[type='submit']").disabled = true;
-                        await loadReviews(); // recharge les avis
+                        await loadReviews();
                     } else {
                         alert("Erreur : " + (json.message || "Impossible d'ajouter l'avis."));
                     }

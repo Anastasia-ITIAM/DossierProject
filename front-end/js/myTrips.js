@@ -7,7 +7,7 @@ export async function initMyTrips() {
     if (!avenirTab || !passesTab) return;
 
     try {
-        // ✅ URL corrigée pour lister les trajets réservés
+        // URL pour lister les trajets réservés
         const resp = await authFetch('http://localhost:8081/api/trip/reservation/list');
         const result = await resp.json();
 
@@ -21,8 +21,7 @@ export async function initMyTrips() {
         // Vider les onglets
         avenirTab.innerHTML = '';
         passesTab.innerHTML = '';
-
-        // Les trajets de l'utilisateur sont déjà filtrés côté backend
+        
         const myTrips = result.trips;
 
         myTrips.forEach(trip => {

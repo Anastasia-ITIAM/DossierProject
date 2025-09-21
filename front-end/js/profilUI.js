@@ -1,4 +1,5 @@
 export function initProfilUI() {
+
     const profileImage = document.getElementById("profileImage");
     const profilePseudo = document.getElementById("profilePseudo");
     const profileRole = document.getElementById("profileRole");
@@ -42,9 +43,7 @@ export function initProfilUI() {
         });
     }
 
-    // ------------------------
     // Fonction de mise à jour de l'UI
-    // ------------------------
     function refreshUI(dataOverride = null) {
         const data = dataOverride || JSON.parse(sessionStorage.getItem(storageKey)) || {};
         const userRole = data.role || "ROLE_UNKNOWN";
@@ -79,10 +78,8 @@ export function initProfilUI() {
             });
         }
     }
-
-    // ------------------------
+    
     // IMPORTANT : ne pas rafraîchir tout de suite (sinon données vides)
-    // ------------------------
 
     // Quand d’autres modules (initProfil) finissent de charger le user
     window.addEventListener("profileDataReady", (e) => {

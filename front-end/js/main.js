@@ -48,14 +48,13 @@ async function initUser() {
     const bodyClasses = document.body.className.split(' ');
     const requiresAuth = bodyClasses.some(cls => protectedPages.includes(cls));
 
-    if (!requiresAuth) return; // Pas besoin de getMe() sur pages publiques
+    if (!requiresAuth) return;
 
     const user = await getMe();
     if (user) {
         console.log("Utilisateur connecté :", user);
         window.currentUserId = user.id;
     } else {
-        // Redirection uniquement si nécessaire
         window.location.href = '/pages/signIn.html';
     }
 }
@@ -64,9 +63,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         console.log("Début de l'initialisation principale");
 
-        await injectCommon();       // Injecte header/footer/modals
-        await initUser();           // Initialise window.currentUserId uniquement si nécessaire
-        await initHeader();         // Initialise le header avec l'utilisateur
+        await injectCommon();
+        await initUser();
+        await initHeader();
 
         // Initialisations globales (animations, toggle, swap)
         initFormsAnimation();

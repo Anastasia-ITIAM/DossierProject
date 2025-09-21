@@ -1,8 +1,6 @@
 export function initProfil() {
 
-    // ------------------------
     // Utilitaires
-    // ------------------------
     function sanitizeInput(input) {
         if (typeof input !== "string") return input;
         return input.replace(/[<>]/g, "");
@@ -20,9 +18,7 @@ export function initProfil() {
         return requiredFields.every(field => userData[field] && userData[field].trim() !== '');
     }
 
-    // ------------------------
     // Sélection du formulaire et alert
-    // ------------------------
     const form = document.getElementById('updateProfileForm');
     if (!form) {
         console.error("Formulaire #updateProfileForm non trouvé");
@@ -38,20 +34,18 @@ export function initProfil() {
 
     const storageKey = `userProfile_${userId}`;
 
-    // ------------------------
     // Chargement des données utilisateur
-    // ------------------------
     async function loadUserData() {
         try {
             const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
             const profileImage = document.getElementById("profileImage");
 
-            // 🔹 Étape 1 : si données locales -> afficher direct
+            // Étape 1 : si données locales -> afficher direct
             if (Object.keys(storedData).length > 0) {
                 window.dispatchEvent(new CustomEvent("profileDataReady", { detail: storedData }));
             }
 
-            // 🔹 Étape 2 : toujours récupérer les données serveur
+            // Étape 2 : toujours récupérer les données serveur
             const res = await fetch(`http://localhost:8081/api/user/${userId}`);
             const result = await res.json();
 
@@ -77,7 +71,7 @@ export function initProfil() {
 
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
 
-            // 🔹 Étape 3 : notifier l’UI avec les données fraîches
+            // Étape 3 : notifier l’UI avec les données fraîches
             window.dispatchEvent(new CustomEvent("profileDataReady", { detail: userData }));
 
         } catch (err) {
@@ -87,9 +81,7 @@ export function initProfil() {
 
     loadUserData();
 
-    // ------------------------
     // Soumission du formulaire
-    // ------------------------
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -141,9 +133,7 @@ export function initProfil() {
         }
     });
 
-    // ------------------------
     // Écoute pour cacher l'alerte si profil complet
-    // ------------------------
     window.addEventListener('profileDataReady', (e) => {
         const userData = e.detail;
         if (profileAlert) {
