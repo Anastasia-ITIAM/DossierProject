@@ -10,13 +10,11 @@ doctrine_mongodb:
 
     document_managers:
         default:
-            # Désactive l’auto-mapping pour éviter les conflits
             auto_mapping: false
 
-            # Mapping explicite pour notre namespace App\Document
             mappings:
                 App:
-                    type: attribute          # ✅ utilise les attributs PHP 8 #[MongoDB\...]
+                    type: attribute         
                     dir: '%kernel.project_dir%/src/Document'
                     prefix: 'App\Document'
                     is_bundle: false

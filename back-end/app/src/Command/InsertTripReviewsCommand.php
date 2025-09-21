@@ -16,13 +16,13 @@ class InsertTripReviewsCommand extends Command
     public function __construct(DocumentManager $dm)
     {
         $this->dm = $dm;
-        parent::__construct(); // Toujours appeler parent::__construct() après tes propriétés
+        parent::__construct();
     }
 
     protected function configure(): void
     {
         $this
-            ->setName('app:insert-trip-reviews') // ✅ définit explicitement le nom
+            ->setName('app:insert-trip-reviews')
             ->setDescription('Insert sample TripReview documents into MongoDB.');
     }
 

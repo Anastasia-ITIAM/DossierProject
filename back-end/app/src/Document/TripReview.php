@@ -32,7 +32,7 @@ class TripReview
         $this->createdAt = new \DateTime();
     }
 
-    // --- Getters ---
+    // Getters
     public function getId(): ?string { return $this->id; }
     public function getTripId(): ?string { return $this->tripId; }
     public function getUserId(): ?string { return $this->userId; }
@@ -41,7 +41,7 @@ class TripReview
     public function getCreatedAt(): \DateTime { return $this->createdAt; }
     public function getUserPseudo(): ?string { return $this->userPseudo; }
 
-    // --- Setters ---
+    // Setters
     public function setTripId(?string $tripId): self { $this->tripId = $tripId; return $this; }
     public function setUserId(?string $userId): self { $this->userId = $userId; return $this; }
     public function setComment(?string $comment): self { $this->comment = $comment; return $this; }

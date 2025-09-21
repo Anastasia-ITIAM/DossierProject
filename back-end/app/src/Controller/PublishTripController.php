@@ -21,9 +21,7 @@ class PublishTripController extends AbstractController
         $this->em = $em;
     }
 
-    // --------------------
-    // Ajouter un trajet
-    // --------------------
+    //  AJOUTER UN TRAJET
     #[Route('/add', name: 'publish_trip', methods: ['POST'])]
     public function add(Request $request): JsonResponse
     {
@@ -53,7 +51,7 @@ class PublishTripController extends AbstractController
 
         try {
             $trip = new Trip();
-            $trip->setDriver($user) // ou $trip->setUser($user) si tu as ajouté l’alias
+            $trip->setDriver($user)
                  ->setCar($car)
                  ->setDepartureAddress($data['departure_address'] ?? '')
                  ->setArrivalAddress($data['arrival_address'] ?? '')
@@ -89,9 +87,7 @@ class PublishTripController extends AbstractController
         }
     }
 
-    // --------------------
-    // Supprimer un trajet
-    // --------------------
+    // SUPPRIMER UN TRAJET
     #[Route('/delete/{id}', name: 'delete_trip', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {

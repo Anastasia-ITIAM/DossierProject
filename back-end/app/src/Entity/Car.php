@@ -43,13 +43,13 @@ class Car
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    // === CONSTRUCTEUR ===
+    // CONSTRUCTEUR 
     public function __construct()
     {
-        $this->availableSeats = 1; // valeur par défaut
+        $this->availableSeats = 1; 
     }
 
-    // === GETTERS & SETTERS ===
+    // GETTERS ET SETTERS 
     public function getId(): ?int { return $this->id; }
 
     public function getLicensePlate(): ?string { return $this->licensePlate; }

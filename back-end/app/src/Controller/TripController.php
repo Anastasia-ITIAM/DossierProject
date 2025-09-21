@@ -21,9 +21,7 @@ class TripController extends AbstractController
         $this->em = $em;
     }
 
-    // --------------------
-    // Lister tous les trajets ouverts
-    // --------------------
+    // LISTER LES TRAJETS
     #[Route('/all', name: 'all', methods: ['GET'])]
     public function all(): JsonResponse
     {
@@ -36,9 +34,7 @@ class TripController extends AbstractController
         ]);
     }
 
-    // --------------------
-    // Recherche trajets (départ, arrivée, date)
-    // --------------------
+    // RECHERCHE TRAJET
     #[Route('/search', name: 'search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
@@ -83,9 +79,7 @@ class TripController extends AbstractController
         ]);
     }
 
-    // --------------------
     // Détails d’un trajet par ID
-    // --------------------
     #[Route('/{id}', name: 'details', methods: ['GET'])]
     public function details(int $id): JsonResponse
     {
@@ -104,9 +98,7 @@ class TripController extends AbstractController
         ]);
     }
 
-    // --------------------
     // Lister les trajets réservés par l’utilisateur (chauffeur ou passager)
-    // --------------------
     #[Route('/reservation/list', name: 'reservation_list', methods: ['GET'])]
     public function reservationList(): JsonResponse
     {
@@ -137,9 +129,8 @@ class TripController extends AbstractController
         }
     }
 
-    // --------------------
-    // Format d’un trajet (avec photo conducteur et détails si demandé)
-    // --------------------
+
+    // Format d’un trajet
     private function formatTrip(Trip $trip, bool $withDetails = false): array
     {
         $driver = $trip->getDriver();

@@ -84,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->cars = new ArrayCollection();
     }
 
-    // ---------------- GETTERS & SETTERS ----------------
+    // GETTERS ET SETTERS 
 
     public function getId(): ?int { return $this->id; }
     public function getPseudo(): ?string { return $this->pseudo; }
@@ -114,12 +114,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getStatus(): ?string { return $this->status; }
     public function setStatus(string $status): static { $this->status = $status; return $this; }
 
-    // ---------------- SECURITY METHODS ----------------
+    // SECURITY METHODS 
     public function getUserIdentifier(): string { return (string)$this->email; }
     public function getRoles(): array { return [$this->role ?? 'ROLE_PASSENGER']; }
     public function eraseCredentials(): void {}
 
-    // ---------------- CARS RELATION ----------------
+    //  CARS RELATION 
     public function getCars(): Collection { return $this->cars; }
 
     public function addCar(Car $car): static

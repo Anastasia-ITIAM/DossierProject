@@ -27,7 +27,7 @@ class TripReviewController extends AbstractController
         $this->logger = $logger;
     }
 
-    // --- Ajouter un avis ---
+    // AJOUTER UN AVIS
     #[Route('/{tripId}/reviews', name: 'add', methods: ['POST'])]
     public function add(int $tripId, Request $request): JsonResponse
     {
@@ -63,7 +63,7 @@ class TripReviewController extends AbstractController
         }
     }
 
-    // --- Lister les avis d’un trajet ---
+    // LISTER LES AVIS
     #[Route('/{tripId}/reviews', name: 'list', methods: ['GET'])]
     public function getReviews(int $tripId): JsonResponse
     {

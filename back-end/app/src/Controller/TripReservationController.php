@@ -19,9 +19,7 @@ class TripReservationController extends AbstractController
         $this->em = $em;
     }
 
-    // --------------------
-    // Réserver un trajet
-    // --------------------
+    // RESERVER UN TRAJET
     #[Route('/{tripId}', name: 'reserve_trip', methods: ['POST'])]
     public function reserve(int $tripId): JsonResponse
     {
@@ -61,7 +59,7 @@ class TripReservationController extends AbstractController
         $trip->setAvailableSeats($trip->getAvailableSeats() - 1);
 
         try {
-            $this->em->persist($user); // mettre à jour les crédits
+            $this->em->persist($user); 
             $this->em->persist($trip);
             $this->em->flush();
 
@@ -81,9 +79,7 @@ class TripReservationController extends AbstractController
         }
     }
 
-    // --------------------
-    // Annuler une réservation
-    // --------------------
+    // ANNULER LA RESERVATION
     #[Route('/cancel/{tripId}', name: 'cancel_reservation', methods: ['POST'])]
     public function cancel(int $tripId): JsonResponse
     {
@@ -110,7 +106,7 @@ class TripReservationController extends AbstractController
         $trip->setAvailableSeats($trip->getAvailableSeats() + 1);
 
         try {
-            $this->em->persist($user); // mettre à jour crédits
+            $this->em->persist($user); 
             $this->em->persist($trip);
             $this->em->flush();
 
@@ -128,9 +124,7 @@ class TripReservationController extends AbstractController
         }
     }
 
-    // --------------------
-    // Lister les trajets réservés ou publiés par l'utilisateur
-    // --------------------
+    // LISTER LES TRAJETS RESERVÉS OU PUBLIES PAR UTILISATEUR
     #[Route('/list', name: 'list', methods: ['GET'])]
     public function list(): JsonResponse
     {

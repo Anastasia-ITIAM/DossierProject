@@ -18,12 +18,12 @@ class Trip
     #[ORM\Column]
     private ?int $id = null;
 
-    // ⚡ Relation ManyToOne avec Car
+    // Relation ManyToOne avec Car
     #[ORM\ManyToOne(targetEntity: Car::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Car $car = null;
 
-    // ⚡ Relation ManyToOne avec User (conducteur)
+    // Relation ManyToOne avec User (conducteur)
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $driver = null;
@@ -61,7 +61,7 @@ class Trip
     #[ORM\Column(nullable: true)]
     private ?bool $participant_validation = null;
 
-    // ⚡ Relation ManyToMany avec passagers
+    // Relation ManyToMany avec passagers
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'trip_passengers')]
     private Collection $passengers;
@@ -74,9 +74,7 @@ class Trip
         $this->participant_validation = false;
     }
 
-    // --------------------
-    // Getters / Setters
-    // --------------------
+    // GETTERS ET SETTERS
     public function getId(): ?int { return $this->id; }
 
     public function getCar(): ?Car { return $this->car; }
@@ -85,7 +83,6 @@ class Trip
     public function getDriver(): ?User { return $this->driver; }
     public function setDriver(?User $driver): static { $this->driver = $driver; return $this; }
 
-    // 🔹 Alias pour compatibilité avec setUser / getUser
     public function getUser(): ?User { return $this->getDriver(); }
     public function setUser(?User $user): static { return $this->setDriver($user); }
 
@@ -122,9 +119,7 @@ class Trip
     public function isParticipantValidation(): ?bool { return $this->participant_validation; }
     public function setParticipantValidation(?bool $participant_validation): static { $this->participant_validation = $participant_validation; return $this; }
 
-    // --------------------
     // Passagers
-    // --------------------
     /** @return Collection|User[] */
     public function getPassengers(): Collection { return $this->passengers; }
 
