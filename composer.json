@@ -16,7 +16,9 @@
         "symfony/twig-bundle": "^7.3",
         "knpuniversity/oauth2-client-bundle": "^2.19",
         "doctrine/orm": "*",
-        "symfony/runtime": "*"
+        "symfony/runtime": "*",
+        "nelmio/cors-bundle": "*",
+        "symfony/yaml": "^7.3"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.52",
@@ -53,7 +55,8 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "symfony/runtime": true
         }
     }
 }
