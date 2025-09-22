@@ -1,10 +1,10 @@
-version: '3.8'
-
 services:
   php:
-    build: .
+    build:
+      context: ./back-end/app
+      dockerfile: Dockerfile
     ports:
-      - "8000:9000" # Symfony accessible via Nginx ou Symfony CLI
+      - "8000:9000"  # Accès à PHP-FPM (Nginx ou frontend doit le proxy)
     environment:
       APP_ENV: prod
       DATABASE_URL: ${DATABASE_URL}
@@ -12,10 +12,13 @@ services:
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}
       CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN}
     volumes:
-      - .:/var/www/html
+      - ./back-end/app:/var/www/html:cached   # code source local
+      - php_vendor:/var/www/html/vendor       # volume Docker pour vendor (Composer écrit dedans)
+      - php_var:/var/www/html/var             # volume Docker pour var
     depends_on:
       - mysql_db
       - mongo
+    restart: unless-stopped
 
   mysql_db:
     image: mysql:8.0
@@ -25,31 +28,44 @@ services:
       MYSQL_USER: anastasia
       MYSQL_PASSWORD: OneLove24!
     ports:
-      - "3306:3306"  # Accès direct local
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
       retries: 5
       timeout: 5s
+    restart: unless-stopped
 
   mongo:
     image: mongo:6.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo_user
       MONGO_INITDB_ROOT_PASSWORD: mongo_password
-      MONGO_DATABASE: ecoride_mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongo", "--username", "mongo_user", "--password", "mongo_password", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       retries: 5
       timeout: 5s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+    restart: unless-stopped
 
 volumes:
   mysql_data:
   mongo_data:
+  php_vendor:
+  php_var:

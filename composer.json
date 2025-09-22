@@ -1,8 +1,57 @@
 {
-  "type": "project",
-  "require": {
-    "php": ">=8.2",
-    "symfony/framework-bundle": "^7.3",
-    "knpuniversity/oauth2-client-bundle": "^2.19"
-  }
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2",
+        "ext-mbstring": "*",
+        "ext-intl": "*",
+        "ext-xml": "*",
+        "ext-openssl": "*",
+        "symfony/framework-bundle": "^7.3",
+        "symfony/console": "^7.3",
+        "symfony/routing": "^7.3",
+        "symfony/http-foundation": "^7.3",
+        "symfony/dependency-injection": "^7.3",
+        "symfony/dotenv": "^7.3",
+        "symfony/twig-bundle": "^7.3",
+        "knpuniversity/oauth2-client-bundle": "^2.19"
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.52",
+        "symfony/debug-bundle": "^7.3",
+        "symfony/web-profiler-bundle": "^7.3",
+        "symfony/flex": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        }
+    }
 }

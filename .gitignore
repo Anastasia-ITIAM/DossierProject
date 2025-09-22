@@ -21,7 +21,6 @@ composer.lock
 *.seed
 *.env
 docker-compose.override.yml
-**/Dockerfile
 **/uploads.ini
 
 # ----------------------------
