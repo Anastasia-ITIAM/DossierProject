@@ -1,4 +1,4 @@
 framework:
     secret: '%env(APP_SECRET)%'
     session: true
-    trusted_hosts: ['^ecoecoride-bfc4b6ed3554\.herokuapp\.com$']
+    trusted_hosts: ['^localhost$', '^127\.0\.0\.1$', '^.*$']

@@ -1,35 +1,22 @@
 import { login } from './signIn.js';
 
-// Utilitaires sécurité
 function sanitizeInput(input) {
     return input.replace(/[<>]/g, "");
 }
 
 function safeAlert(message) {
-    const div = document.createElement('div');
-    div.textContent = Array.isArray(message) ? message.join('\n') : message;
-    alert(div.textContent);
+    alert(Array.isArray(message) ? message.join('\n') : message);
 }
 
 export function initSignUp() {
-
-    // Validation front
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function validatePseudo(pseudo) {
-        return /^[a-zA-Z0-9_]{3,20}$/.test(pseudo);
-    }
-
-    function validatePassword(password) {
-        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
-    }
+    const validateEmail = email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const validatePseudo = pseudo => /^[a-zA-Z0-9_]{3,20}$/.test(pseudo);
+    const validatePassword = password => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
     const form = document.getElementById('signUpForm');
     if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async e => {
         e.preventDefault();
 
         const email = sanitizeInput(form.email.value.trim());
@@ -40,44 +27,36 @@ export function initSignUp() {
 
         if (!validateEmail(email)) return safeAlert('Email invalide');
         if (!validatePseudo(pseudo)) return safeAlert('Pseudo invalide (3-20 caractères)');
-        if (!validatePassword(password)) return safeAlert('Mot de passe invalide. Il doit contenir au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.');
+        if (!validatePassword(password)) return safeAlert('Mot de passe invalide.');
         if (password !== confirmPassword) return safeAlert('Les mots de passe ne correspondent pas');
         if (!conditionsChecked) return safeAlert('Vous devez accepter les conditions d’utilisation');
 
         const data = { email, pseudo, password };
 
         try {
-            console.log("📤 Data envoyée au backend :", data);
+            console.log("📤 Data envoyée :", data);
 
-            const response = await fetch('http://localhost:8081/api/user', {
+            const response = await fetch('http://localhost:8000/api/user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
-            // Sécurisation : lire d'abord en texte
-            const text = await response.text();
-            let result;
-            try {
-                result = JSON.parse(text);
-            } catch {
-                console.error('Backend a renvoyé autre chose que du JSON :', text);
-                return safeAlert('Erreur serveur inattendue');
-            }
+            const result = await response.json();
 
             if (response.ok && result.success) {
                 const loginResult = await login(email, password);
-
                 if (loginResult.status === 'ok') {
-                safeAlert('Inscription et connexion réussies ! 🎉\nFélicitations, vous avez gagné 20 crédits pour votre inscription !');
+                    safeAlert('Inscription et connexion réussies ! 🎉\nVous avez 20 crédits !');
                     window.location.href = '/pages/profil.html';
                 } else {
-                    safeAlert('Inscription réussie, mais impossible de se connecter automatiquement. Veuillez vous connecter.');
+                    safeAlert('Inscription réussie, mais impossible de se connecter automatiquement.');
                     window.location.href = '/pages/signIn.html';
                 }
             } else {
-                safeAlert(result.message || 'Erreur serveur');
+                safeAlert(Array.isArray(result.message) ? result.message.join('\n') : result.message);
             }
+
         } catch (err) {
             console.error('Erreur fetch :', err);
             safeAlert('Erreur réseau');

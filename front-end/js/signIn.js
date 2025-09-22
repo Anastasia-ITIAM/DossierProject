@@ -73,7 +73,7 @@ export async function authFetch(url, options = {}, forceAuth = true) {
 // Connexion utilisateur sécurisée
 export async function login(email, password) {
     try {
-        const res = await fetch('http://localhost:8081/api/auth/login', {
+        const res = await fetch('http://localhost:8000/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: sanitizeInput(email), password })
@@ -139,7 +139,7 @@ export function initSignIn() {
 // Récupération infos utilisateur
 export async function getMe(forceAuth = true) {
     try {
-        const res = await authFetch('http://localhost:8081/api/auth/me', {}, forceAuth);
+        const res = await authFetch('http://localhost:8000/api/auth/me', {}, forceAuth);
         const data = await res.json();
         if (data && data.id) setUserId(data.id);
         return data;
