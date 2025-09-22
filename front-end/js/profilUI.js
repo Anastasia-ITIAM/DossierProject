@@ -53,7 +53,7 @@ export function initProfilUI() {
             profileImage.src = data.profilePhotoUrl 
                 ? (data.profilePhotoUrl.startsWith("http") 
                     ? data.profilePhotoUrl 
-                    : `http://localhost:8081${data.profilePhotoUrl}`) 
+                    : `http://localhost:8000${data.profilePhotoUrl}`) 
                 : "";
         }
         if (profilePseudo) profilePseudo.textContent = data.pseudo || "";

@@ -46,7 +46,7 @@ export function initProfil() {
             }
 
             // Étape 2 : toujours récupérer les données serveur
-            const res = await fetch(`http://localhost:8081/api/user/${userId}`);
+            const res = await fetch(`http://localhost:8000/api/user/${userId}`);
             const result = await res.json();
 
             if (!res.ok || !result.success) {
@@ -66,7 +66,7 @@ export function initProfil() {
             if (profileImage && userData.profilePhotoUrl) {
                 profileImage.src = userData.profilePhotoUrl.startsWith("http")
                     ? userData.profilePhotoUrl
-                    : `http://localhost:8081${userData.profilePhotoUrl}`;
+                    : `http://localhost:8000${userData.profilePhotoUrl}`;
             }
 
             sessionStorage.setItem(storageKey, JSON.stringify(userData));
@@ -91,7 +91,7 @@ export function initProfil() {
         }
 
         try {
-            const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
+            const res = await fetch(`http://localhost:8000/api/user/${userId}`, {
                 method: "POST",
                 body: formData
             });
@@ -118,7 +118,7 @@ export function initProfil() {
             if (profileImage && result.user.profilePhotoUrl) {
                 profileImage.src = result.user.profilePhotoUrl.startsWith("http")
                     ? result.user.profilePhotoUrl
-                    : `http://localhost:8081${result.user.profilePhotoUrl}`;
+                    : `http://localhost:8000${result.user.profilePhotoUrl}`;
                 updatedData.profilePhotoUrl = result.user.profilePhotoUrl;
             }
 
