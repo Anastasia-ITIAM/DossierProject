@@ -14,7 +14,9 @@
         "symfony/dependency-injection": "^7.3",
         "symfony/dotenv": "^7.3",
         "symfony/twig-bundle": "^7.3",
-        "knpuniversity/oauth2-client-bundle": "^2.19"
+        "knpuniversity/oauth2-client-bundle": "^2.19",
+        "doctrine/orm": "*",
+        "symfony/runtime": "*"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.52",
