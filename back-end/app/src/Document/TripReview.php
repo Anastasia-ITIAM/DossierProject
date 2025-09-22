@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
@@ -16,36 +17,35 @@ class TripReview
     private ?string $userId = null;
 
     #[MongoDB\Field(type: "string")]
+    private ?string $userPseudo = null;
+
+    #[MongoDB\Field(type: "string")]
     private ?string $comment = null;
 
     #[MongoDB\Field(type: "int")]
     private ?int $rating = null;
 
-    #[MongoDB\Field(type: "string", nullable: true)]
-    private ?string $userPseudo = null;
-
     #[MongoDB\Field(type: "date")]
-    private \DateTime $createdAt;
+    private ?\DateTime $createdAt = null;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
-
-    // Getters
+    // --- Getters / Setters ---
     public function getId(): ?string { return $this->id; }
-    public function getTripId(): ?string { return $this->tripId; }
-    public function getUserId(): ?string { return $this->userId; }
-    public function getComment(): ?string { return $this->comment; }
-    public function getRating(): ?int { return $this->rating; }
-    public function getCreatedAt(): \DateTime { return $this->createdAt; }
-    public function getUserPseudo(): ?string { return $this->userPseudo; }
 
-    // Setters
-    public function setTripId(?string $tripId): self { $this->tripId = $tripId; return $this; }
-    public function setUserId(?string $userId): self { $this->userId = $userId; return $this; }
-    public function setComment(?string $comment): self { $this->comment = $comment; return $this; }
-    public function setRating(?int $rating): self { $this->rating = $rating; return $this; }
-    public function setUserPseudo(?string $pseudo): self { $this->userPseudo = $pseudo; return $this; }
-    public function setCreatedAt(\DateTimeInterface $createdAt): self { $this->createdAt = $createdAt instanceof \DateTime ? $createdAt : new \DateTime(); return $this; }
+    public function getTripId(): ?string { return $this->tripId; }
+    public function setTripId(string $tripId): static { $this->tripId = $tripId; return $this; }
+
+    public function getUserId(): ?string { return $this->userId; }
+    public function setUserId(string $userId): static { $this->userId = $userId; return $this; }
+
+    public function getUserPseudo(): ?string { return $this->userPseudo; }
+    public function setUserPseudo(string $userPseudo): static { $this->userPseudo = $userPseudo; return $this; }
+
+    public function getComment(): ?string { return $this->comment; }
+    public function setComment(string $comment): static { $this->comment = $comment; return $this; }
+
+    public function getRating(): ?int { return $this->rating; }
+    public function setRating(int $rating): static { $this->rating = $rating; return $this; }
+
+    public function getCreatedAt(): ?\DateTime { return $this->createdAt; }
+    public function setCreatedAt(\DateTime $createdAt): static { $this->createdAt = $createdAt; return $this; }
 }

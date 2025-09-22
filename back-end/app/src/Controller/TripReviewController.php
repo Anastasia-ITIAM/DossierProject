@@ -27,7 +27,7 @@ class TripReviewController extends AbstractController
         $this->logger = $logger;
     }
 
-    // AJOUTER UN AVIS
+    // --- Ajouter un review ---
     #[Route('/{tripId}/reviews', name: 'add', methods: ['POST'])]
     public function add(int $tripId, Request $request): JsonResponse
     {
@@ -63,24 +63,24 @@ class TripReviewController extends AbstractController
         }
     }
 
-    // LISTER LES AVIS
+    // --- Lister les reviews ---
     #[Route('/{tripId}/reviews', name: 'list', methods: ['GET'])]
     public function getReviews(int $tripId): JsonResponse
     {
         try {
-            $repo = $this->dm->getRepository(TripReview::class);
-            $reviews = $repo->findBy(['tripId' => (string) $tripId]) ?? [];
+            $reviews = $this->dm->getRepository(TripReview::class)
+                                ->findBy(['tripId' => (string) $tripId]) ?? [];
 
             $data = [];
             foreach ($reviews as $r) {
                 $data[] = [
                     'id' => $r->getId(),
-                    'tripId' => $r->getTripId() ?? '',
-                    'userId' => $r->getUserId() ?? '',
-                    'userPseudo' => $r->getUserPseudo() ?? '',
-                    'comment' => $r->getComment() ?? '',
-                    'rating' => $r->getRating() ?? 0,
-                    'createdAt' => $r->getCreatedAt() ? $r->getCreatedAt()->format('Y-m-d H:i') : null
+                    'tripId' => $r->getTripId(),
+                    'userId' => $r->getUserId(),
+                    'userPseudo' => $r->getUserPseudo(),
+                    'comment' => $r->getComment(),
+                    'rating' => $r->getRating(),
+                    'createdAt' => $r->getCreatedAt()?->format('Y-m-d H:i')
                 ];
             }
 

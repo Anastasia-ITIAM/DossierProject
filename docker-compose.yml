@@ -7,12 +7,13 @@ services:
     environment:
       APP_ENV: dev
       APP_SECRET: ChangeMe123
-      APP_TRUSTED_HOSTS: ".*"                  # Symfony Trusted Hosts
+      APP_TRUSTED_HOSTS: ".*"
       DATABASE_URL: "mysql://anastasia:OneLove24!@mysql_db:3306/ecoride?serverVersion=8.0&charset=utf8mb4"
-      MONGODB_URL: "mongodb://mongo_user:mongo_password@mongo:27017/ecoride_mongo"
-      JWT_SECRET_KEY: "/var/www/html/config/jwt/private.pem"  # JWT key
-      JWT_PUBLIC_KEY: "/var/www/html/config/jwt/public.pem"   # JWT key
-      JWT_PASSPHRASE: "OneLove24!"                             # JWT passphrase
+      # Ajout de authSource=admin pour que l'authentification root fonctionne
+      MONGODB_URL: "mongodb://mongo_user:mongo_password@mongo:27017/ecoride_mongo?authSource=admin"
+      JWT_SECRET_KEY: "/var/www/html/config/jwt/private.pem"
+      JWT_PUBLIC_KEY: "/var/www/html/config/jwt/public.pem"
+      JWT_PASSPHRASE: "OneLove24!"
     volumes:
       - ./back-end/app:/var/www/html:cached
       - php_var:/var/www/html/var
@@ -60,6 +61,22 @@ services:
       - mongo_data:/data/db
     restart: unless-stopped
 
+  mongo_express:
+    image: mongo-express:1.0.0
+    container_name: ecoride-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mongo_user       # utilisateur Mongo root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongo_password   # mot de passe Mongo root
+      ME_CONFIG_MONGODB_SERVER: mongo                   # service Mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin               # login interface web
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123           # mot de passe interface web
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin            # base d'authentification root
+    ports:
+      - "8082:8081" # accessible sur http://localhost:8082
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
   frontend:
     build:
       context: ./front-end
@@ -87,8 +104,31 @@ services:
       - mysql_db
     restart: unless-stopped
 
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
 volumes:
   mysql_data:
   mongo_data:
   php_var:
   php_vendor:
+
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###

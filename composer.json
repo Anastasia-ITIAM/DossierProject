@@ -20,7 +20,12 @@
         "nelmio/cors-bundle": "*",
         "symfony/yaml": "^7.3",
         "symfony/validator": "^7.3",
-        "symfony/password-hasher": "^7.3"
+        "symfony/password-hasher": "^7.3",
+        "doctrine/doctrine-bundle": "^2.16",
+        "symfony/security-bundle": "^7.3",
+        "lexik/jwt-authentication-bundle": "^3.1",
+        "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/mongodb-odm-bundle": "^5.4"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.52",
