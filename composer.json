@@ -18,7 +18,9 @@
         "doctrine/orm": "*",
         "symfony/runtime": "*",
         "nelmio/cors-bundle": "*",
-        "symfony/yaml": "^7.3"
+        "symfony/yaml": "^7.3",
+        "symfony/validator": "^7.3",
+        "symfony/password-hasher": "^7.3"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.52",

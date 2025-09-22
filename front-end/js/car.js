@@ -14,7 +14,7 @@ const toYMD = value => {
 /* API */
 export const fetchMyCars = async () => {
     try {
-        const resp = await authFetch('http://localhost:8081/api/car/list', { method: 'GET' });
+        const resp = await authFetch('http://localhost:8000/api/car/list', { method: 'GET' });
         const data = await resp.json();
         return resp.ok && data.success ? (Array.isArray(data.cars) ? data.cars : [data.cars]) : [];
     } catch (err) { console.error(err); return []; }
@@ -123,7 +123,7 @@ export async function renderCars(cars) {
         const delBtn = createButton('Supprimer', async () => {
             if (!confirm('Voulez-vous vraiment supprimer ce véhicule ?')) return;
             try {
-                const resp = await authFetch(`http://localhost:8081/api/car/delete/${car.id}`, { method:'DELETE' });
+                const resp = await authFetch(`http://localhost:8000/api/car/delete/${car.id}`, { method:'DELETE' });
                 const result = await resp.json();
                 if(resp.ok && result.success){
                     renderCars(await fetchMyCars());
@@ -161,7 +161,7 @@ export function initCar() {
         const data = Object.fromEntries(formData.entries());
         data.available_seats = parseInt(data.available_seats,10)||0;
         try {
-            const resp = await authFetch('http://localhost:8081/api/car/add', { method:'POST', body: JSON.stringify(data) });
+            const resp = await authFetch('http://localhost:8000/api/car/add', { method:'POST', body: JSON.stringify(data) });
             const result = await resp.json();
             if(resp.ok && result.success){
                 const currentUserData = JSON.parse(sessionStorage.getItem(storageKey))||{};

@@ -26,9 +26,9 @@ export async function initSearchTrip() {
             if (depart) queryParams.depart = depart;
             if (arrivee) queryParams.arrivee = arrivee;
             if (datetime) queryParams.datetime = datetime;
-            url = `http://localhost:8081/api/trip/search?${new URLSearchParams(queryParams).toString()}`;
+            url = `http://localhost:8000/api/trip/search?${new URLSearchParams(queryParams).toString()}`;
         } else {
-            url = 'http://localhost:8081/api/trip/all';
+            url = 'http://localhost:8000/api/trip/all';
         }
 
         const resp = await fetch(url);
@@ -75,7 +75,7 @@ export async function initSearchTrip() {
                 <div class="card h-100" style="background-color: #e8f5e9;">
                     <div class="card-body">
                         <div style="display: flex; align-items: center; gap: 15px; margin: 15px 0;">
-                            <img src="http://localhost:8081${photoUrl}" 
+                            <img src="http://localhost:8000${photoUrl}" 
                                  alt="Conducteur" 
                                  style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;"
                                  onerror="this.onerror=null; this.src='/uploads/profiles/profile_default.png';">

@@ -6,7 +6,7 @@ async function populateUserCars() {
     if (!select) return;
 
     try {
-        const resp = await authFetch('http://localhost:8081/api/car/list', { method: 'GET' });
+        const resp = await authFetch('http://localhost:8000/api/car/list', { method: 'GET' });
         const text = await resp.text();
         let data;
 
@@ -74,7 +74,7 @@ function setupPublishTripForm() {
         };
 
         try {
-            const resp = await authFetch('http://localhost:8081/api/trip/add', {
+            const resp = await authFetch('http://localhost:8000/api/trip/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -121,7 +121,7 @@ function setupDeleteTripButton(tripId) {
         if (!confirm('Voulez-vous vraiment supprimer ce trajet ?')) return;
 
         try {
-            const delResp = await authFetch(`http://localhost:8081/api/trip/delete/${tripId}`, { method: 'DELETE' });
+            const delResp = await authFetch(`http://localhost:8000/api/trip/delete/${tripId}`, { method: 'DELETE' });
             const text = await delResp.text();
             let delResult;
 

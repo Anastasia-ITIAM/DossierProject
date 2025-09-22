@@ -15,7 +15,7 @@ export async function initTripReview() {
 
     // Récupérer les détails du trajet
     try {
-        const tripRes = await authFetch(`http://localhost:8081/api/trip/${tripId}`, { method: 'GET' }, true);
+        const tripRes = await authFetch(`http://localhost:8000/api/trip/${tripId}`, { method: 'GET' }, true);
         if (!tripRes.ok) throw new Error(`Erreur HTTP : ${tripRes.status}`);
         const tripJson = await tripRes.json();
         if (!tripJson.trip) throw new Error("Trip data manquante");
@@ -40,7 +40,7 @@ export async function initTripReview() {
     // Charger et afficher les avis 
     async function loadReviews() {
         try {
-            const res = await authFetch(`http://localhost:8081/api/trip/${tripId}/reviews`, { method: 'GET' }, true);
+            const res = await authFetch(`http://localhost:8000/api/trip/${tripId}/reviews`, { method: 'GET' }, true);
             if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
             const json = await res.json();
 
@@ -86,7 +86,7 @@ export async function initTripReview() {
                 }
 
                 try {
-                    const res = await authFetch(`http://localhost:8081/api/trip/${tripId}/reviews`, {
+                    const res = await authFetch(`http://localhost:8000/api/trip/${tripId}/reviews`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ userId: currentUserId, comment, rating })

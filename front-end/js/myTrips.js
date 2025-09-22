@@ -8,7 +8,7 @@ export async function initMyTrips() {
 
     try {
         // URL pour lister les trajets réservés
-        const resp = await authFetch('http://localhost:8081/api/trip/reservation/list');
+        const resp = await authFetch('http://localhost:8000/api/trip/reservation/list');
         const result = await resp.json();
 
         if (!result.success) {
