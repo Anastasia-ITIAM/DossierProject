@@ -51,13 +51,26 @@ services:
       dockerfile: Dockerfile
     container_name: ecoride-frontend
     ports:
-      - "8080:80"   # Nginx exposé sur localhost:8080
+      - "8080:80"
     depends_on:
       - php-fpm
     restart: unless-stopped
     volumes:
       - ./front-end:/usr/share/nginx/html:cached
       - ./front-end/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ecoride-phpmyadmin
+    environment:
+      PMA_HOST: mysql_db
+      PMA_USER: anastasia
+      PMA_PASSWORD: OneLove24!
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql_db
+    restart: unless-stopped
 
 volumes:
   mysql_data:
