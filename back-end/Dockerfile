@@ -1,5 +1,5 @@
 # --------------------------
-# Image PHP 8.2 FPM Alpine
+# PHP 8.2 FPM Alpine Image
 # --------------------------
 FROM php:8.2-fpm-alpine
 
@@ -19,14 +19,18 @@ RUN apk add --no-cache \
     libc-dev \
     oniguruma-dev \
     curl \
-    pkgconfig \
-    && docker-php-ext-configure intl \
+    pkgconfig
+
+# --------------------------
+# Extensions PHP
+# --------------------------
+RUN docker-php-ext-configure intl \
     && docker-php-ext-install intl pdo pdo_mysql zip opcache \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb
 
 # --------------------------
-# Copier config PHP personnalisée
+# Configuration PHP
 # --------------------------
 COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
@@ -35,19 +39,20 @@ COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 # --------------------------
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# --------------------------
-# Copier le projet Symfony
-# --------------------------
+# Set workdir
 WORKDIR /var/www/html
+
+# Copy all files from the build context (./back-end/app)
 COPY . /var/www/html
+
 
 # --------------------------
 # Installer les dépendances Symfony
 # --------------------------
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+RUN composer install --no-interaction --optimize-autoloader
 
 # --------------------------
-# Fixer les permissions pour Symfony
+# Permissions
 # --------------------------
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/public
 
@@ -61,7 +66,4 @@ USER www-data
 # --------------------------
 EXPOSE 9000
 
-# --------------------------
-# Commande par défaut
-# --------------------------
 CMD ["php-fpm"]

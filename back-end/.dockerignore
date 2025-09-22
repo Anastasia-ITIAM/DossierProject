@@ -1,0 +1,8 @@
+.DS_Store
+*.swp
+*.tmp
+*~
+var/cache/*
+var/log/*
+vendor/*
+docker-compose.override.yaml
