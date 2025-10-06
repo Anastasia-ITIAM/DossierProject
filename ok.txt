@@ -1,0 +1,23 @@
+# 1. Se placer dans le dossier backend
+cd back-end
+
+# 2. Installer Symfony dans le dossier courant avec le squelette complet web
+composer create-project symfony/website-skeleton .
+
+# 3. Installer Doctrine pour gérer les bases de données relationnelles
+composer require doctrine
+
+# 4. Installer le pack ORM de Symfony pour la configuration de la base de données
+composer require symfony/orm-pack
+
+# 5. Installer le Maker Bundle pour générer du code facilement (entités, contrôleurs...)
+composer require maker --dev
+
+# 6. Installer Lexik JWT pour gérer l’authentification par tokens
+composer require lexik/jwt-authentication-bundle
+
+# 7. Installer Nelmio CORS pour configurer les règles de sécurité entre frontend et backend
+composer require nelmio/cors-bundle
+
+# 8. Tester le serveur Symfony 
+symfony serve
